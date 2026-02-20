@@ -36,16 +36,19 @@
 
 ### 安装
 ```bash
+$ cd desktop-app
 $ npm install
 ```
 
 ### 开发模式
 ```bash
+$ cd desktop-app
 $ npm run dev
 ```
 
 ### 生产构建
 ```bash
+$ cd desktop-app
 # 构建 Windows 版本
 $ npm run build:win
 
@@ -62,6 +65,7 @@ $ npm run build:linux
 
 ### 运行测试
 ```bash
+$ cd desktop-app
 # 运行所有单元测试
 $ npm run test
 
@@ -71,6 +75,7 @@ $ npm run test:watch
 
 ### 代码检测
 ```bash
+$ cd desktop-app
 # 类型检查
 $ npm run typecheck
 

@@ -4,7 +4,7 @@ node_modules/
 # Build outputs
 dist/
 out/
-build/
+# build/ <- 移除此项，允许子目录中的构建资源（如图标、plist）进入仓库
 *.exe
 *.dmg
 *.zip
