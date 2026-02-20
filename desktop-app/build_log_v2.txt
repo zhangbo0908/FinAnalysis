@@ -1,0 +1,196 @@
+
+> desktop-app@1.0.0 build:mac
+> npm run build && electron-builder --mac --arm64
+
+
+> desktop-app@1.0.0 build
+> npm run typecheck && electron-vite build
+
+
+> desktop-app@1.0.0 typecheck
+> npm run typecheck:node && npm run typecheck:web
+
+
+> desktop-app@1.0.0 typecheck:node
+> tsc --noEmit -p tsconfig.node.json --composite false
+
+
+> desktop-app@1.0.0 typecheck:web
+> tsc --noEmit -p tsconfig.web.json --composite false
+
+vite v7.3.1 building ssr environment for production...
+transforming...
+✓ 6 modules transformed.
+rendering chunks...
+out/main/index.js  22.69 kB
+✓ built in 193ms
+vite v7.3.1 building ssr environment for production...
+transforming...
+✓ 1 modules transformed.
+rendering chunks...
+out/preload/index.js  1.93 kB
+✓ built in 5ms
+vite v7.3.1 building client environment for production...
+transforming...
+✓ 2093 modules transformed.
+rendering chunks...
+../../out/renderer/index.html                              0.55 kB
+../../out/renderer/assets/pdf.worker.min-wgc6bjNh.mjs  1,078.61 kB
+../../out/renderer/assets/index-Bd8NbHFF.css              31.54 kB
+../../out/renderer/assets/index-SBu2E1y6.js            2,422.64 kB
+✓ built in 1.62s
+  • electron-builder  version=26.8.1 os=25.4.0
+  • loaded configuration  file=/Users/zhangbo/Documents/FinAnalysis/desktop-app/electron-builder.yml
+  • executing @electron/rebuild  electronVersion=39.6.1 arch=arm64 buildFromSource=false workspaceRoot=/Users/zhangbo/Documents/FinAnalysis/desktop-app projectDir=./ appDir=./
+  • installing native dependencies  arch=arm64
+  • preparing       moduleName=better-sqlite3 arch=arm64
+  • finished        moduleName=better-sqlite3 arch=arm64
+  • completed installing native dependencies
+  • packaging       platform=darwin arch=arm64 electron=39.6.1 appOutDir=dist/mac-arm64
+  • searching for node modules  pm=npm searchDir=/Users/zhangbo/Documents/FinAnalysis/desktop-app
+  • duplicate dependency references  dependencies=["@types/node@22.19.11","@types/node@22.19.11","@types/responselike@1.0.3","@types/node@22.19.11","get-stream@5.2.0","responselike@2.0.1","decompress-response@6.0.0","debug@4.4.3","@types/node@22.19.11","debug@4.4.3","pump@3.0.3","electron@39.6.1","@langchain/core@1.1.26","p-queue@6.6.2","@langchain/core@1.1.26","@langchain/core@1.1.26","js-tiktoken@1.0.21","@radix-ui/react-slot@1.2.4","@types/react@19.2.14","react-dom@19.2.4","@types/react@19.2.14","@radix-ui/react-slot@1.2.3","@types/react@19.2.14","react-dom@19.2.4","@types/react@19.2.14","@types/react@19.2.14","react-dom@19.2.4","@types/react@19.2.14","@types/react@19.2.14","@types/react@19.2.14","@types/react@19.2.14","@types/react@19.2.14","react-dom@19.2.4","@types/react@19.2.14","@types/react@19.2.14","react-dom@19.2.4","@types/react@19.2.14","@types/react@19.2.14","@types/react@19.2.14","react-dom@19.2.4","@types/react@19.2.14","react-dom@19.2.4","@types/react@19.2.14","react-dom@19.2.4","@types/react@19.2.14","@types/react@19.2.14","react-dom@19.2.4","@types/react@19.2.14","react-dom@19.2.4","@types/react@19.2.14","@types/react@19.2.14","react-dom@19.2.4","@types/react@19.2.14","@types/react@19.2.14","@types/react@19.2.14","react-dom@19.2.4","@types/react@19.2.14","@types/react@19.2.14","react-dom@19.2.4","@types/react@19.2.14","react-dom@19.2.4","@radix-ui/react-slot@1.2.3","@types/react@19.2.14","react-dom@19.2.4","@types/react@19.2.14","@types/react@19.2.14","@types/react@19.2.14","@types/react@19.2.14","@types/react@19.2.14","@types/react@19.2.14","@types/react@19.2.14","@types/react@19.2.14","react-dom@19.2.4","@types/react@19.2.14","react-dom@19.2.4","@types/react@19.2.14","react-dom@19.2.4","@types/react@19.2.14","@types/react@19.2.14","react-style-singleton@2.2.3","@types/react@19.2.14","@types/react@19.2.14","@types/react@19.2.14","@types/react@19.2.14","react-dom@19.2.4","once@1.4.0","once@1.4.0","pump@3.0.3","readable-stream@3.6.2","end-of-stream@1.4.5","@types/react@19.2.14","@types/hast@3.0.4","devlop@1.1.0","@types/hast@3.0.4","@types/hast@3.0.4","@types/mdast@4.0.4","devlop@1.1.0","mdast-util-from-markdown@2.0.2","mdast-util-to-markdown@2.1.2","@types/estree-jsx@1.0.5","@types/hast@3.0.4","@types/mdast@4.0.4","devlop@1.1.0","mdast-util-from-markdown@2.0.2","mdast-util-to-markdown@2.1.2","decode-named-character-reference@1.3.0","vfile-message@4.0.3","@types/estree-jsx@1.0.5","@types/hast@3.0.4","@types/mdast@4.0.4","devlop@1.1.0","mdast-util-from-markdown@2.0.2","mdast-util-to-markdown@2.1.2","unist-util-stringify-position@4.0.0","@types/hast@3.0.4","@types/mdast@4.0.4","devlop@1.1.0","unist-util-position@5.0.0","unist-util-visit@5.1.0","vfile@6.0.3","@types/mdast@4.0.4","@types/mdast@4.0.4","devlop@1.1.0","@types/mdast@4.0.4","decode-named-character-reference@1.3.0","micromark-util-character@2.1.1","micromark-util-decode-numeric-character-reference@2.0.2","debug@4.4.3","decode-named-character-reference@1.3.0","devlop@1.1.0","micromark-core-commonmark@2.0.3","micromark-factory-space@2.0.1","micromark-util-character@2.1.1","micromark-util-chunked@2.0.1","micromark-util-combine-extensions@2.0.1","micromark-util-decode-numeric-character-reference@2.0.2","micromark-util-normalize-identifier@2.0.1","micromark-util-resolve-all@2.0.1","micromark-util-sanitize-uri@2.0.1","devlop@1.1.0","micromark-util-chunked@2.0.1","unist-util-stringify-position@4.0.0","unified@11.0.5","@types/hast@3.0.4","@types/mdast@4.0.4","mdast-util-to-hast@13.2.1","unified@11.0.5","vfile@6.0.3","devlop@1.1.0","vfile@6.0.3","unist-util-is@6.0.1","vfile-message@4.0.3","react-dom@19.2.4","react-dom@19.2.4","@types/mdast@4.0.4","mdast-util-from-markdown@2.0.2","@types/mdast@4.0.4","devlop@1.1.0","@types/mdast@4.0.4","unist-util-is@6.0.1","unist-util-visit-parents@6.0.2","micromark-util-character@2.1.1","@types/mdast@4.0.4","devlop@1.1.0","mdast-util-from-markdown@2.0.2","mdast-util-to-markdown@2.1.2","micromark-util-normalize-identifier@2.0.1","@types/mdast@4.0.4","mdast-util-from-markdown@2.0.2","mdast-util-to-markdown@2.1.2","@types/mdast@4.0.4","devlop@1.1.0","mdast-util-from-markdown@2.0.2","mdast-util-to-markdown@2.1.2","@types/mdast@4.0.4","devlop@1.1.0","mdast-util-from-markdown@2.0.2","mdast-util-to-markdown@2.1.2","@types/mdast@4.0.4","@types/mdast@4.0.4","unist-util-is@6.0.1","mdast-util-to-string@4.0.0","micromark-util-character@2.1.1","micromark-util-decode-string@2.0.1","unist-util-visit@5.1.0","micromark-util-character@2.1.1","micromark-util-sanitize-uri@2.0.1","devlop@1.1.0","decode-named-character-reference@1.3.0","devlop@1.1.0","micromark-util-character@2.1.1","devlop@1.1.0","micromark-util-character@2.1.1","micromark-factory-space@2.0.1","micromark-factory-space@2.0.1","micromark-util-character@2.1.1","micromark-factory-space@2.0.1","micromark-util-character@2.1.1","micromark-util-character@2.1.1","micromark-util-chunked@2.0.1","micromark-util-classify-character@2.0.1","micromark-util-normalize-identifier@2.0.1","micromark-util-resolve-all@2.0.1","micromark-util-subtokenize@2.1.0","micromark-util-character@2.1.1","micromark-util-character@2.1.1","micromark-util-normalize-identifier@2.0.1","micromark-util-sanitize-uri@2.0.1","devlop@1.1.0","micromark-util-classify-character@2.0.1","devlop@1.1.0","micromark-factory-space@2.0.1","micromark-util-character@2.1.1","devlop@1.1.0","micromark-factory-space@2.0.1","micromark-util-character@2.1.1","micromark-util-chunked@2.0.1","remark-parse@11.0.0","@types/mdast@4.0.4","mdast-util-to-markdown@2.1.2","unified@11.0.5","unified@11.0.5","cfb@1.2.2","ssf@0.11.2"]
+  • falling back to ad-hoc signature for macOS application code signing
+  • signing         file=dist/mac-arm64/财报智析.app platform=darwin type=distribution identityName=- identityHash=none provisioningProfile=none
+  • skipped macOS notarization  reason=`notarize` options were set explicitly `false`
+  • building        target=DMG arch=arm64 file=dist/desktop-app-1.0.0.dmg
+  • downloading     release=dmg-builder@1.2.0 file=dmgbuild-bundle-arm64-75c8a6c.tar.gz
+  ⨯ /Users/zhangbo/Library/Caches/electron-builder/dmg-builder@1.2.0/dmgbuild-bundle-arm64-75c8a6c-uwh7j/dmgbuild process failed 1
+Exit code:
+1
+Output:
+Exit code: 1. Command failed: /Users/zhangbo/Library/Caches/electron-builder/dmg-builder@1.2.0/dmgbuild-bundle-arm64-75c8a6c-uwh7j/dmgbuild -s /p a593b85b80e01132fd6f60080d70069fd590519c3875f094cc883988b2ccc7a7 (sha256 hash) 财报智析 1.0.0-arm64 /Users/zhangbo/Documents/FinAnalysis/desktop-app/dist/desktop-app-1.0.0.dmg
+hdiutil: attach failed - 无可装载的文件系统
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/zhangbo/Library/Caches/electron-builder/dmg-builder@1.2.0/dmgbuild-bundle-arm64-75c8a6c-uwh7j/p 3ab791c012fa3ee647e142d412ccc6d7f442f1c73383a198aab35e13511c2f08 (sha256 hash) line 70, in <module>
+    main()
+    ~~~~^^
+  File "/Users/zhangbo/Library/Caches/electron-builder/dmg-builder@1.2.0/dmgbuild-bundle-arm64-75c8a6c-uwh7j/p 3ab791c012fa3ee647e142d412ccc6d7f442f1c73383a198aab35e13511c2f08 (sha256 hash) line 59, in main
+    build_dmg(
+    ~~~~~~~~~^
+        args.filename,
+        ^^^^^^^^^^^^^^
+    ...<4 lines>...
+        detach_retries=args.detachRetries,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/zhangbo/Library/Caches/electron-builder/dmg-builder@1.2.0/dmgbuild-bundle-arm64-75c8a6c-uwh7j/p 618e91d4b336f07556883e2751a6a105d4bfdad1a86998ebeb129644cc12b252 (sha256 hash) line 530, in build_dmg
+    ret, output = hdiutil(
+                  ~~~~~~~^
+        "attach", "-nobrowse", "-owners", "off", writableFile.name
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/zhangbo/Library/Caches/electron-builder/dmg-builder@1.2.0/dmgbuild-bundle-arm64-75c8a6c-uwh7j/p 618e91d4b336f07556883e2751a6a105d4bfdad1a86998ebeb129644cc12b252 (sha256 hash) line 60, in hdiutil
+    results = plistlib.loads(output)
+  File "/Users/zhangbo/Library/Caches/electron-builder/dmg-builder@1.2.0/dmgbuild-bundle-arm64-75c8a6c-uwh7j/p 98d3fbd6bc7a474a1b22555c802edbc1499f054e861fd3b3a48115e3ecf418fc (sha256 hash) line 925, in loads
+    return load(fp, fmt=fmt, dict_type=dict_type, aware_datetime=aware_datetime)
+  File "/Users/zhangbo/Library/Caches/electron-builder/dmg-builder@1.2.0/dmgbuild-bundle-arm64-75c8a6c-uwh7j/p 98d3fbd6bc7a474a1b22555c802edbc1499f054e861fd3b3a48115e3ecf418fc (sha256 hash) line 906, in load
+    raise InvalidFileException()
+plistlib.InvalidFileException: Invalid file
+
+hdiutil: attach failed - 无可装载的文件系统
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/zhangbo/Library/Caches/electron-builder/dmg-builder@1.2.0/dmgbuild-bundle-arm64-75c8a6c-uwh7j/python/lib/python3.14/site-packages/dmgbuild/__main__.py", line 70, in <module>
+    main()
+    ~~~~^^
+  File "/Users/zhangbo/Library/Caches/electron-builder/dmg-builder@1.2.0/dmgbuild-bundle-arm64-75c8a6c-uwh7j/python/lib/python3.14/site-packages/dmgbuild/__main__.py", line 59, in main
+    build_dmg(
+    ~~~~~~~~~^
+        args.filename,
+        ^^^^^^^^^^^^^^
+    ...<4 lines>...
+        detach_retries=args.detachRetries,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/zhangbo/Library/Caches/electron-builder/dmg-builder@1.2.0/dmgbuild-bundle-arm64-75c8a6c-uwh7j/python/lib/python3.14/site-packages/dmgbuild/core.py", line 530, in build_dmg
+    ret, output = hdiutil(
+                  ~~~~~~~^
+        "attach", "-nobrowse", "-owners", "off", writableFile.name
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/zhangbo/Library/Caches/electron-builder/dmg-builder@1.2.0/dmgbuild-bundle-arm64-75c8a6c-uwh7j/python/lib/python3.14/site-packages/dmgbuild/core.py", line 60, in hdiutil
+    results = plistlib.loads(output)
+  File "/Users/zhangbo/Library/Caches/electron-builder/dmg-builder@1.2.0/dmgbuild-bundle-arm64-75c8a6c-uwh7j/python/lib/python3.14/plistlib.py", line 925, in loads
+    return load(fp, fmt=fmt, dict_type=dict_type, aware_datetime=aware_datetime)
+  File "/Users/zhangbo/Library/Caches/electron-builder/dmg-builder@1.2.0/dmgbuild-bundle-arm64-75c8a6c-uwh7j/python/lib/python3.14/plistlib.py", line 906, in load
+    raise InvalidFileException()
+plistlib.InvalidFileException: Invalid file
+  failedTask=build stackTrace=Error: /Users/zhangbo/Library/Caches/electron-builder/dmg-builder@1.2.0/dmgbuild-bundle-arm64-75c8a6c-uwh7j/dmgbuild process failed 1
+Exit code:
+1
+Output:
+Exit code: 1. Command failed: /Users/zhangbo/Library/Caches/electron-builder/dmg-builder@1.2.0/dmgbuild-bundle-arm64-75c8a6c-uwh7j/dmgbuild -s /p a593b85b80e01132fd6f60080d70069fd590519c3875f094cc883988b2ccc7a7 (sha256 hash) 财报智析 1.0.0-arm64 /Users/zhangbo/Documents/FinAnalysis/desktop-app/dist/desktop-app-1.0.0.dmg
+hdiutil: attach failed - 无可装载的文件系统
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/zhangbo/Library/Caches/electron-builder/dmg-builder@1.2.0/dmgbuild-bundle-arm64-75c8a6c-uwh7j/p 3ab791c012fa3ee647e142d412ccc6d7f442f1c73383a198aab35e13511c2f08 (sha256 hash) line 70, in <module>
+    main()
+    ~~~~^^
+  File "/Users/zhangbo/Library/Caches/electron-builder/dmg-builder@1.2.0/dmgbuild-bundle-arm64-75c8a6c-uwh7j/p 3ab791c012fa3ee647e142d412ccc6d7f442f1c73383a198aab35e13511c2f08 (sha256 hash) line 59, in main
+    build_dmg(
+    ~~~~~~~~~^
+        args.filename,
+        ^^^^^^^^^^^^^^
+    ...<4 lines>...
+        detach_retries=args.detachRetries,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/zhangbo/Library/Caches/electron-builder/dmg-builder@1.2.0/dmgbuild-bundle-arm64-75c8a6c-uwh7j/p 618e91d4b336f07556883e2751a6a105d4bfdad1a86998ebeb129644cc12b252 (sha256 hash) line 530, in build_dmg
+    ret, output = hdiutil(
+                  ~~~~~~~^
+        "attach", "-nobrowse", "-owners", "off", writableFile.name
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/zhangbo/Library/Caches/electron-builder/dmg-builder@1.2.0/dmgbuild-bundle-arm64-75c8a6c-uwh7j/p 618e91d4b336f07556883e2751a6a105d4bfdad1a86998ebeb129644cc12b252 (sha256 hash) line 60, in hdiutil
+    results = plistlib.loads(output)
+  File "/Users/zhangbo/Library/Caches/electron-builder/dmg-builder@1.2.0/dmgbuild-bundle-arm64-75c8a6c-uwh7j/p 98d3fbd6bc7a474a1b22555c802edbc1499f054e861fd3b3a48115e3ecf418fc (sha256 hash) line 925, in loads
+    return load(fp, fmt=fmt, dict_type=dict_type, aware_datetime=aware_datetime)
+  File "/Users/zhangbo/Library/Caches/electron-builder/dmg-builder@1.2.0/dmgbuild-bundle-arm64-75c8a6c-uwh7j/p 98d3fbd6bc7a474a1b22555c802edbc1499f054e861fd3b3a48115e3ecf418fc (sha256 hash) line 906, in load
+    raise InvalidFileException()
+plistlib.InvalidFileException: Invalid file
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         hdiutil: attach failed - 无可装载的文件系统
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/zhangbo/Library/Caches/electron-builder/dmg-builder@1.2.0/dmgbuild-bundle-arm64-75c8a6c-uwh7j/python/lib/python3.14/site-packages/dmgbuild/__main__.py", line 70, in <module>
+    main()
+    ~~~~^^
+  File "/Users/zhangbo/Library/Caches/electron-builder/dmg-builder@1.2.0/dmgbuild-bundle-arm64-75c8a6c-uwh7j/python/lib/python3.14/site-packages/dmgbuild/__main__.py", line 59, in main
+    build_dmg(
+    ~~~~~~~~~^
+        args.filename,
+        ^^^^^^^^^^^^^^
+    ...<4 lines>...
+        detach_retries=args.detachRetries,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/zhangbo/Library/Caches/electron-builder/dmg-builder@1.2.0/dmgbuild-bundle-arm64-75c8a6c-uwh7j/python/lib/python3.14/site-packages/dmgbuild/core.py", line 530, in build_dmg
+    ret, output = hdiutil(
+                  ~~~~~~~^
+        "attach", "-nobrowse", "-owners", "off", writableFile.name
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/zhangbo/Library/Caches/electron-builder/dmg-builder@1.2.0/dmgbuild-bundle-arm64-75c8a6c-uwh7j/python/lib/python3.14/site-packages/dmgbuild/core.py", line 60, in hdiutil
+    results = plistlib.loads(output)
+  File "/Users/zhangbo/Library/Caches/electron-builder/dmg-builder@1.2.0/dmgbuild-bundle-arm64-75c8a6c-uwh7j/python/lib/python3.14/plistlib.py", line 925, in loads
+    return load(fp, fmt=fmt, dict_type=dict_type, aware_datetime=aware_datetime)
+  File "/Users/zhangbo/Library/Caches/electron-builder/dmg-builder@1.2.0/dmgbuild-bundle-arm64-75c8a6c-uwh7j/python/lib/python3.14/plistlib.py", line 906, in load
+    raise InvalidFileException()
+plistlib.InvalidFileException: Invalid file
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             at /Users/zhangbo/Documents/FinAnalysis/desktop-app/node_modules/builder-util/src/util.ts:155:18
+    at ChildProcess.exithandler (node:child_process:422:5)
+    at ChildProcess.emit (node:events:518:28)
+    at maybeClose (node:internal/child_process:1101:16)
+    at Process.ChildProcess._handle.onexit (node:internal/child_process:304:5)

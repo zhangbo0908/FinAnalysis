@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+out/
+build/
+*.exe
+*.dmg
+*.zip
+*.blockmap
+
+# Environment & Cache
+.venv/
+.pytest_cache/
+.eslintcache
+.parcel-cache/
+.npmrc
+
+# Local Database & Secrets
+*.sqlite
+*.sqlite3
+*.db
+.env
+.env.*
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log*
+win_build_log.txt
