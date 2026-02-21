@@ -6,12 +6,22 @@ const api = {
   saveApiKey: (payload: { provider: string, key: string, baseURL?: string, modelName?: string }) => ipcRenderer.invoke('invoke:settings:saveKey', payload),
   getApiKey: (provider: string) => ipcRenderer.invoke('invoke:settings:getKey', provider),
   getActiveProvider: () => ipcRenderer.invoke('invoke:settings:getActiveProvider'),
-  testConnection: (payload: { provider: string, apiKey: string, baseUrl?: string, modelName?: string }) => ipcRenderer.invoke('invoke:llm:testConnection', payload),
+  getActiveRole: () => ipcRenderer.invoke('invoke:settings:getActiveRole'),
+  saveActiveRole: (role: string) => ipcRenderer.invoke('invoke:settings:saveActiveRole', role),
+  getRolePrompts: () => ipcRenderer.invoke('invoke:settings:getRolePrompts'),
+  getAnalyPrompt: (role: string) => ipcRenderer.invoke('invoke:settings:getAnalyPrompt', role),
+  saveAnalyPrompt: (payload: { prompt: string, role: string }) => ipcRenderer.invoke('invoke:settings:saveAnalyPrompt', payload),
+
+  // pdf extraction
+  splitPdfToImages: (filePath: string) => ipcRenderer.invoke('invoke:pdf:splitToImages', filePath),
+
+  // llm operations
   extractTables: (payload: { provider: string, imagesBase64: string[] }) => ipcRenderer.invoke('invoke:llm:extractTables', payload),
+  parseLocalExcel: (fileData: ArrayBuffer) => ipcRenderer.invoke('invoke:excel:parseLocal', fileData),
+  testConnection: (payload: { provider: string, apiKey: string, baseUrl?: string, modelName?: string }) => ipcRenderer.invoke('invoke:llm:testConnection', payload),
+  analyzeFinancials: (payload: { provider: string, data: any, prompt?: string }) => ipcRenderer.invoke('invoke:llm:analyzeFinancials', payload),
   exportExcel: (payload: any) => ipcRenderer.invoke('invoke:export:excel', payload),
   exportMarkdown: (payload: { content: string }) => ipcRenderer.invoke('invoke:export:markdown', payload),
-  // 流式财务分析 API
-  analyzeFinancials: (payload: { provider: string, data: any }) => ipcRenderer.invoke('invoke:llm:analyzeFinancials', payload),
   onAnalysisChunk: (callback: (chunk: string) => void) => {
     const handler = (_event: any, chunk: string) => callback(chunk)
     ipcRenderer.on('stream:analysis:chunk', handler)

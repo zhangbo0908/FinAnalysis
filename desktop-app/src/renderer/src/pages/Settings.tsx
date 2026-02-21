@@ -11,6 +11,14 @@ import {
     SelectValue,
 } from '../components/ui/select'
 
+const DEFAULT_BASE_URLS: Record<string, string> = {
+    openai: 'https://api.openai.com/v1',
+    anthropic: 'https://api.anthropic.com/v1',
+    gemini: 'https://generativelanguage.googleapis.com/',
+    deepseek: 'https://api.deepseek.com',
+    custom: ''
+}
+
 export function Settings() {
     const [provider, setProvider] = useState<string>('gemini')
     const [apiKey, setApiKey] = useState<string>('')
@@ -27,11 +35,11 @@ export function Settings() {
                 const data = await window.api.getApiKey(provider)
                 if (data) {
                     setApiKey(data.apiKey || '')
-                    setBaseUrl(data.baseUrl || '')
+                    setBaseUrl(data.baseUrl || DEFAULT_BASE_URLS[provider] || '')
                     setModelName(data.modelName || '')
                 } else {
                     setApiKey('')
-                    setBaseUrl('')
+                    setBaseUrl(DEFAULT_BASE_URLS[provider] || '')
                     setModelName('')
                 }
             }
@@ -108,7 +116,7 @@ export function Settings() {
                                 <SelectValue placeholder="选择服务商" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="openai">OpenAI (默认)</SelectItem>
+                                <SelectItem value="openai">OpenAI</SelectItem>
                                 <SelectItem value="anthropic">Anthropic (Claude)</SelectItem>
                                 <SelectItem value="gemini">Google Gemini</SelectItem>
                                 <SelectItem value="deepseek">DeepSeek</SelectItem>

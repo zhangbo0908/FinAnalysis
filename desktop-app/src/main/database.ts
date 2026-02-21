@@ -68,6 +68,40 @@ export function getActiveProvider(): string {
     return row ? row.value : 'gemini'
 }
 
+export function saveActiveRole(role: string): void {
+    if (!db) throw new Error('Database not initialized')
+    const stmt = db.prepare(`
+    INSERT INTO app_config (key, value) VALUES ('active_role', ?)
+    ON CONFLICT(key) DO UPDATE SET value = excluded.value
+    `)
+    stmt.run(role)
+}
+
+export function getActiveRole(): string {
+    if (!db) throw new Error('Database not initialized')
+    const stmt = db.prepare(`SELECT value FROM app_config WHERE key = 'active_role'`)
+    const row = stmt.get() as { value: string } | undefined
+    return row ? row.value : 'audit'
+}
+
+export function saveAnalyPrompt(prompt: string, role: string = 'audit'): void {
+    if (!db) throw new Error('Database not initialized')
+    const key = `analy_prompt_${role}`
+    const stmt = db.prepare(`
+    INSERT INTO app_config (key, value) VALUES (?, ?)
+    ON CONFLICT(key) DO UPDATE SET value = excluded.value
+    `)
+    stmt.run(key, prompt)
+}
+
+export function getAnalyPrompt(role: string = 'audit'): string | null {
+    if (!db) throw new Error('Database not initialized')
+    const key = `analy_prompt_${role}`
+    const stmt = db.prepare(`SELECT value FROM app_config WHERE key = ?`)
+    const row = stmt.get(key) as { value: string } | undefined
+    return row ? row.value : null
+}
+
 export function saveApiKey(provider: string, apiKey: string, baseUrl?: string, modelName?: string): void {
     if (!db) throw new Error('Database not initialized')
 

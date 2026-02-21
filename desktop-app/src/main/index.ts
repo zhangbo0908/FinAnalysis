@@ -3,10 +3,11 @@ import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 
-import { initDatabase, closeDatabase, saveApiKey, getApiKey, getActiveProvider } from './database'
+import { initDatabase, closeDatabase, saveApiKey, getApiKey, getActiveProvider, saveAnalyPrompt, getAnalyPrompt, saveActiveRole, getActiveRole } from './database'
 import { extractFinancialTables, testLLMConnection } from './services/llmService'
 import { exportToExcel } from './services/exportService'
-import { generateFinancialAnalysis } from './services/analysisService'
+import { generateFinancialAnalysis, ROLE_PROMPTS } from './services/analysisService'
+import { parseExcelBuffer } from './services/parseExcelService'
 import * as fs from 'fs'
 
 function createWindow(): void {
@@ -82,13 +83,57 @@ app.whenReady().then(() => {
       return getActiveProvider()
     } catch (err: any) {
       console.error('Error fetching active provider:', err)
-      return 'openai'
+      return 'gemini'
+    }
+  })
+
+  ipcMain.handle('invoke:settings:saveActiveRole', async (_, role: string) => {
+    try {
+      saveActiveRole(role)
+      return { success: true }
+    } catch (err: any) {
+      return { success: false, error: err.message }
+    }
+  })
+
+  ipcMain.handle('invoke:settings:getActiveRole', async () => {
+    try {
+      return getActiveRole()
+    } catch (err: any) {
+      console.error('Error fetching active role:', err)
+      return 'audit'
+    }
+  })
+
+  ipcMain.handle('invoke:settings:getRolePrompts', async () => {
+    return ROLE_PROMPTS
+  })
+
+  ipcMain.handle('invoke:settings:saveAnalyPrompt', async (_, payload: { prompt: string, role: string }) => {
+    try {
+      saveAnalyPrompt(payload.prompt, payload.role)
+      return { success: true }
+    } catch (err: any) {
+      return { success: false, error: err.message }
+    }
+  })
+
+  ipcMain.handle('invoke:settings:getAnalyPrompt', async (_, role: string) => {
+    try {
+      return getAnalyPrompt(role)
+    } catch (err: any) {
+      return null
     }
   })
 
   // PDF to VLM extract tables
   ipcMain.handle('invoke:llm:extractTables', async (_, payload: { provider: string, imagesBase64: string[] }) => {
     return await extractFinancialTables(payload)
+  })
+
+  // Parse local Excel directly
+  ipcMain.handle('invoke:excel:parseLocal', async (_, fileData: ArrayBuffer) => {
+    return await parseExcelBuffer(fileData)
   })
 
   // Test LLM connection
@@ -126,12 +171,13 @@ app.whenReady().then(() => {
   })
 
   // 流式财务分析
-  ipcMain.handle('invoke:llm:analyzeFinancials', async (event, payload: { provider: string, data: any }) => {
+  ipcMain.handle('invoke:llm:analyzeFinancials', async (event, payload: { provider: string, data: any, prompt?: string }) => {
     const sender = event.sender
     try {
       await generateFinancialAnalysis(
         payload.provider,
         payload.data,
+        payload.prompt, // 新增注入提示词
         (chunk: string) => sender.send('stream:analysis:chunk', chunk),
         () => sender.send('stream:analysis:done'),
         (error: string) => sender.send('stream:analysis:error', error)

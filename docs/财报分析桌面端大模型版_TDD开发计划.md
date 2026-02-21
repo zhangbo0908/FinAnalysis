@@ -35,18 +35,21 @@
 
 在 TDD 实施前，确立主渲染进程的通信契约（`preload.ts` 暴露的方法）。这些契约将是编写 Mock 测试的核心依据。
 
-| 领域分类         | 前端调用接口 (Channel)         | 负载/参数类型 (Payload)                                    | 返回值/事件触发 (Return/Event)                            |
-| :--------------- | :----------------------------- | :--------------------------------------------------------- | :-------------------------------------------------------- |
-| **API 配置**     | `invoke:settings:saveKey`      | `{ provider: string, key: string, baseURL?: string }`      | `Promise<{ success: boolean }>`                           |
-| **API 配置**     | `invoke:settings:getKey`       | `provider: string`                                         | `Promise<string                                           | null>` |
-| **PDF 预处理**   | `invoke:pdf:splitToImages`     | `filePath: string`                                         | `Promise<{ imagesBase64: string[], totalPages: number }>` |
-| **VLM 财务抽取** | `invoke:llm:extractTables`     | `{ images: string[], provider: string }`                   | `Promise<FinancialTablesJSON>`                            |
-| **VLM/LLM 状态** | `on:llm:streamUpdate`          | `(event, chunk: string) => void`                           | 渲染进程实时监听此事件流用于打字机 UI                     |
-| **进度更新**     | `on:process:progress`          | `(event, data: { step: string, percent: number }) => void` | 用于更新 UI 的状态机                                      |
-| **财务分析**     | `invoke:llm:analyzeFinancials` | `{ provider: string, data: FinancialTablesJSON }`          | `Promise<{ success: boolean }>` + 流式推送事件            |
-| **分析流式推送** | `stream:analysis:chunk`        | 主进程 -> 渲染进程                                         | 每个 LLM token chunk 实时推送                             |
-| **分析完成**     | `stream:analysis:done`         | 主进程 -> 渲染进程                                         | 流式输出结束信号                                          |
-| **分析错误**     | `stream:analysis:error`        | 主进程 -> 渲染进程                                         | 错误消息推送                                              |
+| 领域分类           | 前端调用接口 (Channel)            | 负载/参数类型 (Payload)                                            | 返回值/事件触发 (Return/Event)                            |
+| :----------------- | :-------------------------------- | :----------------------------------------------------------------- | :-------------------------------------------------------- |
+| **API 配置**       | `invoke:settings:saveKey`         | `{ provider: string, key: string, baseURL?: string }`              | `Promise<{ success: boolean }>`                           |
+| **API 配置**       | `invoke:settings:getKey`          | `provider: string`                                                 | `Promise<string                                           | null>`                               |
+| **模板与提示配置** | `invoke:settings:getAnalyPrompt`  | 无                                                                 | `Promise<string>` (返回保存的或默认的 Prompt 字符串)      |
+| **模板与提示配置** | `invoke:settings:saveAnalyPrompt` | `prompt: string`                                                   | `Promise<{ success: boolean }>`                           |
+| **PDF 预处理**     | `invoke:pdf:splitToImages`        | `filePath: string`                                                 | `Promise<{ imagesBase64: string[], totalPages: number }>` |
+| **文件解析**       | `invoke:excel:parseLocal`         | `filePath: string`                                                 | `Promise<FinancialTablesJSON                              | null>` (需做高强度的 Sheet 与行校验) |
+| **VLM 财务抽取**   | `invoke:llm:extractTables`        | `{ images: string[], provider: string }`                           | `Promise<FinancialTablesJSON>`                            |
+| **VLM/LLM 状态**   | `on:llm:streamUpdate`             | `(event, chunk: string) => void`                                   | 渲染进程实时监听此事件流用于打字机 UI                     |
+| **进度更新**       | `on:process:progress`             | `(event, data: { step: string, percent: number }) => void`         | 用于更新 UI 的状态机                                      |
+| **财务分析**       | `invoke:llm:analyzeFinancials`    | `{ provider: string, data: FinancialTablesJSON, prompt?: string }` | `Promise<{ success: boolean }>` + 流式推送事件            |
+| **分析流式推送**   | `stream:analysis:chunk`           | 主进程 -> 渲染进程                                                 | 每个 LLM token chunk 实时推送                             |
+| **分析完成**       | `stream:analysis:done`            | 主进程 -> 渲染进程                                                 | 流式输出结束信号                                          |
+| **分析错误**       | `stream:analysis:error`           | 主进程 -> 渲染进程                                                 | 错误消息推送                                              |
 
 ---
 
@@ -90,14 +93,16 @@
 - [x] **5. [ 验收 ]** 能够在真正的 UI 流程中完成“导入 PDF -> 筛选图卡 -> 调用 VLM -> 双屏校对 -> 导出至 Excel”全链路。
 
 ### Milestone 4：智能报告推演生成器 (Agentic Reporting & Streaming Markdown)
-**目标**：完成 UI 方案中 3.3 节。将三大表结构化数据发送给 LLM，流式输出五维度专业财务分析报告。
+**目标**：完成 UI 方案中 3.3 节。彻底解耦上游依赖，支持加载存储 Excel 文件组装为 JSON 发送给 LLM，支持动态设定分析逻辑，并流式输出五维度专业财务分析报告。
 
-**当前进度：**
-- [x] **1. [ 实现 ]** 新建 `analysisService.ts`，五维度财务分析 Prompt（偿债/盈利/营运/现金流/综合评价），LangChain `model.stream()` 流式调用。
-- [x] **2. [ 实现 ]** 主进程注册 `invoke:llm:analyzeFinancials` + 三个流式推送事件，Preload 暴露 API 含清理函数。
-- [x] **3. [ 实现 ]** 重写 `AgenticReporting.tsx`：左侧数据源概览 + 右侧 `react-markdown` 打字机渲染 + 四态状态机 UI。
-- [x] **4. [ 实现 ]** 校对台新增"跳转分析"按钮，携带三表数据导航。
-- [x] **5. [ 验收 ]** TypeCheck + Vite Build 零错误通过。
+**当前进度与重构规划：**
+- [x] **1. [ 测试 ]** 新建针对 `parseExcelService` 的 Node 解析单元测试。喂给不同的畸形 Excel 以及含正确 Sheet('资产负债表', '利润表', '现金流量表') 的样板文件，确保严格的边界容忍与类型断言。
+- [x] **2. [ 实现 ]** 为 Electron 扩展 IPC 方法 `invoke:excel:parseLocal` 与 `saveAnalyPrompt`。突破 Electron GUI 沙盒限制，采用 `ArrayBuffer` 作为通信载体进行 Node.js 原生的 `xlsx` 解析。
+- [x] **3. [ 实现 ]** 建立 `analysisService.ts`，内置 4 套细分分析角色的组合映射（中立审计、价值投资、经营管理、信贷风控）。现重构该方法接收前端定制透传的 `prompt` 组合。
+- [x] **4. [ 实现 ]** 主进程注册 `invoke:llm:analyzeFinancials` + 三个流式推送事件，Preload 暴露多角色存储与取用的新 API API 含清理函数。
+- [x] **5. [ 实现 ]** 重写 `AgenticReporting.tsx` 交互组件：左侧大面积重设“本地 Excel 拖拽加载区”，新增下拉“角色 Select 切换台”及下方极具交互包容性的“原生指令高阶设定” 抽屉，支持即刻动态篡写真正底层的发包逻辑。
+- [x] **6. [ 实现 ]** 校对台新增"跳转分析"按钮，携带内存三表数据导航。
+- [x] **7. [ 验收 ]** 支持断网不报错，能够顺畅将之前留存的一份“资产负债表”提取 Excel 从桌面拖入，选择不同角色、修改 Prompt 验证不同的偏好存底，运行正确并看到结构化流式打字机反馈。
 
 ---
 

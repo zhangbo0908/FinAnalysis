@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>财报分析软件 Logo 概念方案</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a; /* Slate 900 for modern dark mode feel */
+            color: #f8fafc;
+        }
+        .glass-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+<body class="min-h-screen py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-slate-900 via-[#0b1121] to-slate-900">
+    <div class="max-w-5xl mx-auto">
+        <header class="text-center mb-16">
+            <h1 class="text-4xl font-extrabold tracking-tight mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-indigo-500">
+                FinAnalysis AI - Logo 概念设计
+            </h1>
+            <p class="text-slate-400 max-w-2xl mx-auto text-lg">
+                基于「大模型」、「财务分析」、「极简/玻璃拟物化」等关键词提炼的3套矢量 SVG 方案。
+            </p>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            
+            <!-- Option 1: AI Vision -->
+            <div class="glass-card rounded-2xl p-8 flex flex-col items-center text-center transition-transform hover:scale-105 duration-300">
+                <div class="w-32 h-32 mb-6 flex items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500/10 to-indigo-500/10 border border-blue-500/20">
+                    <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Abstract Scanning Box -->
+                        <path d="M16 8H8V16" stroke="#60A5FA" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M48 8H56V16" stroke="#60A5FA" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M16 56H8V48" stroke="#60A5FA" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M48 56H56V48" stroke="#60A5FA" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                        <!-- AI Star/Spark inside Chart -->
+                        <path d="M22 42V32" stroke="#818CF8" stroke-width="4" stroke-linecap="round"/>
+                        <path d="M32 42V24" stroke="#A78BFA" stroke-width="4" stroke-linecap="round"/>
+                        <path d="M42 42V36" stroke="#818CF8" stroke-width="4" stroke-linecap="round"/>
+                        <!-- Base line -->
+                        <path d="M16 48H48" stroke="#475569" stroke-width="4" stroke-linecap="round"/>
+                        <!-- Spark elements -->
+                        <circle cx="32" cy="14" r="3" fill="#60A5FA"/>
+                        <path d="M42 22L45 19" stroke="#60A5FA" stroke-width="2" stroke-linecap="round"/>
+                        <path d="M22 22L19 19" stroke="#60A5FA" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold mb-2">方案 A：视觉洞察 (AI Vision)</h3>
+                <p class="text-sm text-slate-400">
+                    结合扫描框与柱状图、AI星芒元素，强调产品“视觉大模型提取扫描版财报”的核心能力。
+                </p>
+            </div>
+
+            <!-- Option 2: Neural Finance -->
+            <div class="glass-card rounded-2xl p-8 flex flex-col items-center text-center transition-transform hover:scale-105 duration-300">
+                <div class="w-32 h-32 mb-6 flex items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500/10 to-teal-500/10 border border-emerald-500/20">
+                    <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Chart Line mapping to neural nodes -->
+                        <path d="M12 48L24 32L36 38L52 16" stroke="#34D399" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                        <!-- Nodes -->
+                        <circle cx="12" cy="48" r="5" fill="#064E3B" stroke="#34D399" stroke-width="3"/>
+                        <circle cx="24" cy="32" r="5" fill="#064E3B" stroke="#34D399" stroke-width="3"/>
+                        <circle cx="36" cy="38" r="5" fill="#134E4A" stroke="#2DD4BF" stroke-width="3"/>
+                        <circle cx="52" cy="16" r="6" fill="#1E1B4B" stroke="#818CF8" stroke-width="3"/>
+                        
+                        <!-- Neural connections -->
+                        <path d="M36 38L52 38" stroke="#475569" stroke-width="2" stroke-opacity="0.5" stroke-dasharray="2 2"/>
+                        <path d="M24 32L36 20" stroke="#475569" stroke-width="2" stroke-opacity="0.5" stroke-dasharray="2 2"/>
+                        <circle cx="52" cy="38" r="3" fill="#64748B"/>
+                        <circle cx="36" cy="20" r="3" fill="#64748B"/>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold mb-2">方案 B：神经计算 (Neural Finance)</h3>
+                <p class="text-sm text-slate-400">
+                    折线图的节点被替换为神经网络节点，最后汇聚成发光的AI节点。代表数据经过大模型推演得出高阶结论。
+                </p>
+            </div>
+
+            <!-- Option 3: Minimalist Ledger -->
+            <div class="glass-card rounded-2xl p-8 flex flex-col items-center text-center transition-transform hover:scale-105 duration-300">
+                <div class="w-32 h-32 mb-6 flex items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500/10 to-purple-500/10 border border-indigo-500/20">
+                    <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Ledger/Matrix Base -->
+                        <rect x="12" y="20" width="40" height="32" rx="6" stroke="#818CF8" stroke-width="4"/>
+                        <path d="M12 32H52" stroke="#818CF8" stroke-width="4"/>
+                        <path d="M26 20V52" stroke="#818CF8" stroke-width="4"/>
+                        
+                        <!-- AI Spark intersecting the matrix -->
+                        <path d="M42 6L45 15L54 18L45 21L42 30L39 21L30 18L39 15L42 6Z" fill="#C084FC"/>
+                        <!-- Decorative mini spark -->
+                        <circle cx="56" cy="8" r="2" fill="#A78BFA"/>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold mb-2">方案 C：智能矩阵 (Smart Ledger)</h3>
+                <p class="text-sm text-slate-400">
+                    极简的财务报表/多Sheet矩阵轮廓，右上角点缀象征智慧与魔法的AI星形徽记。专业且现代。
+                </p>
+            </div>
+
+        </div>
+
+        <div class="mt-16 bg-slate-800/50 rounded-2xl p-8 border border-slate-700">
+            <h2 class="text-2xl font-bold mb-4 border-b border-slate-700 pb-4">🎨 设计思路总结</h2>
+            <ul class="space-y-4 text-slate-300">
+                <li class="flex items-start">
+                    <span class="mr-3 text-2xl">⚡️</span>
+                    <div>
+                        <strong class="text-white block">极简与可扩展性：</strong>
+                        采用纯 SVG 路径重绘画，确保 Logo 在 16x16 的 Dock 图标和 512x512 的启动屏上均能清晰呈现。
+                    </div>
+                </li>
+                <li class="flex items-start">
+                    <span class="mr-3 text-2xl">🌌</span>
+                    <div>
+                        <strong class="text-white block">色彩情绪：</strong>
+                        主色调采用深邃的“青色-靛蓝-紫色”冷色系渐变，符合金融的【冷静理智】以及AI科技的【前沿未来感】。
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

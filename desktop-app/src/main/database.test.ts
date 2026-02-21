@@ -47,3 +47,44 @@ describe('Database Key Management', () => {
         expect(retrieved?.baseUrl).toBe('url2')
     })
 })
+
+describe('Database Prompt Management', () => {
+    beforeEach(() => {
+        initDatabase(testDbPath)
+    })
+
+    afterEach(() => {
+        closeDatabase()
+        if (fs.existsSync(testDbPath)) {
+            fs.unlinkSync(testDbPath)
+        }
+    })
+
+    it('could save and retrieve custom analysis prompt', () => {
+        const customPrompt = '请用详尽的格式，包含SWOT分析，来分析这几份财报。'
+
+        // 引入新的模块方法
+        const { saveAnalyPrompt, getAnalyPrompt } = require('./database')
+
+        saveAnalyPrompt(customPrompt)
+
+        const retrieved = getAnalyPrompt()
+        expect(retrieved).toBe(customPrompt)
+    })
+
+    it('could update existing analysis prompt', () => {
+        const { saveAnalyPrompt, getAnalyPrompt } = require('./database')
+
+        saveAnalyPrompt('Prompt A')
+        saveAnalyPrompt('Prompt B')
+
+        const retrieved = getAnalyPrompt()
+        expect(retrieved).toBe('Prompt B')
+    })
+
+    it('should return null when no prompt is saved', () => {
+        const { getAnalyPrompt } = require('./database')
+        const retrieved = getAnalyPrompt()
+        expect(retrieved).toBeNull()
+    })
+})

@@ -34,7 +34,7 @@ beforeEach(() => {
         onAnalysisChunk: vi.fn(() => vi.fn()),
         onAnalysisDone: vi.fn(() => vi.fn()),
         onAnalysisError: vi.fn(() => vi.fn())
-    }
+    } as any
 })
 
 describe('DataVerification Component', () => {

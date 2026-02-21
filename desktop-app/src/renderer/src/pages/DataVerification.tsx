@@ -40,6 +40,17 @@ export function DataVerification() {
     // Ref to prevent StrictMode double invoke
     const hasRequestedRef = useRef(false)
 
+    // Current active provider friendly name
+    const [providerName, setProviderName] = useState<string>('LLM')
+
+    const providerMap: Record<string, string> = {
+        openai: 'OpenAI',
+        anthropic: 'Anthropic (Claude)',
+        gemini: 'Google Gemini',
+        deepseek: 'DeepSeek',
+        custom: '自定义大模型'
+    }
+
     useEffect(() => {
         if (imagesBase64.length > 0 && balanceSheet.length === 0 && !isExtracting && !error && !hasRequestedRef.current) {
             hasRequestedRef.current = true
@@ -58,6 +69,10 @@ export function DataVerification() {
         try {
             const activeProvider = await window.api.getActiveProvider() || 'gemini'
             const currentSettings = await window.api.getApiKey(activeProvider)
+
+            if (activeProvider && providerMap[activeProvider]) {
+                setProviderName(providerMap[activeProvider])
+            }
 
             if (!currentSettings) {
                 throw new Error(`系统选定的服务商 '${activeProvider}' 尚未配置 API Key。请前往设置页填写并保存。`)
@@ -158,7 +173,12 @@ export function DataVerification() {
                 {/* Header Actions */}
                 <div className="p-4 border-b flex justify-between items-center bg-card">
                     <div className="space-y-1">
-                        <h1 className="text-xl font-bold">结构化数据校对工作台</h1>
+                        <div className="flex items-center gap-2">
+                            <h1 className="text-xl font-bold">结构化数据校对工作台</h1>
+                            <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-xs font-medium border border-primary/20">
+                                引擎: {providerName}
+                            </span>
+                        </div>
                         <p className="text-sm text-muted-foreground">人工核对右侧大模型抽取的数值。您可直接点击单元格修改勘误。</p>
                     </div>
                     <div className="flex gap-2">
@@ -191,7 +211,7 @@ export function DataVerification() {
                     {isExtracting ? (
                         <div className="absolute inset-0 z-10 bg-background/50 backdrop-blur-sm flex flex-col items-center justify-center space-y-4">
                             <Loader2 className="w-10 h-10 text-primary animate-spin" />
-                            <p className="font-semibold text-lg text-primary animate-pulse w-64 text-center">正在处理第 {currentImageIndex} / {imagesBase64.length} 张图片<br />请耐心等待大模型思考...</p>
+                            <p className="font-semibold text-lg text-primary animate-pulse w-64 text-center">正在处理第 {currentImageIndex} / {imagesBase64.length} 张图片<br />请耐心等待 {providerName} 思考...</p>
                         </div>
                     ) : error ? (
                         <div className="absolute inset-0 z-10 flex items-center justify-center p-8">

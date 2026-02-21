@@ -1,12 +1,15 @@
 import { Outlet, NavLink } from "react-router-dom"
 import { FileUp, TableProperties, FileText, Settings } from "lucide-react"
 
+import logo from '../assets/icon.svg'
+
 export function Layout() {
     return (
         <div className="flex h-screen w-full bg-background overflow-hidden text-foreground">
             {/* Sidebar */}
             <div className="w-64 border-r border-border bg-card flex flex-col backdrop-blur-md bg-opacity-95">
-                <div className="h-14 flex items-center px-4 border-b border-border">
+                <div className="h-14 flex items-center px-4 border-b border-border gap-2">
+                    <img src={logo} alt="Logo" className="w-6 h-6" />
                     <h2 className="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-blue-400">FinAnalysis LLM</h2>
                 </div>
                 <nav className="flex-1 py-4 flex flex-col gap-1 px-2">

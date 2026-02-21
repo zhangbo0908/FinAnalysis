@@ -1,23 +1,28 @@
-# 财报分析桌面端 (大模型驱动版)
-
-基于大模型算力的财报分析桌面端软件，实现自动化的财务数据高精度提取、标准化处理与 AI 智能报告推演。
+<div align="center">
+  <img src="./docs/logo.png" width="128" alt="FinAnalysis Logo" />
+  <h1>财报分析桌面端 (大模型驱动版)</h1>
+  <p>基于大模型算力的财报分析桌面端软件，实现自动化的财务数据高精度提取、标准化处理与 AI 智能报告推演。</p>
+</div>
 
 ## 📥 下载安装
 
-您可以前往 [GitHub Releases](https://github.com/zhangbo0908/FinAnalysis/releases) 页面下载最新版本的安装包。
+您可以前往 [GitHub Releases](https://github.com/zhangbo0908/FinAnalysis/releases) 页面查阅更新日志并下载最新版 (v1.1.0) 安装包。
 
-- **macOS 用户**: 目前支持 Apple Silicon (M1/M2/M3) 架构，下载 `.zip` 压缩包解压后，建议将应用拖入 `/Applications` 文件夹运行。
-- **Windows 用户**: 正在测试中，敬请期待。
+- **macOS (Apple Silicon) 用户**: [下载 财报智析 v1.1.0 (Mac ARM64)](https://github.com/zhangbo0908/FinAnalysis/releases/download/v1.1.0/%E8%B4%A2%E6%8A%A5%E6%99%BA%E6%9E%90-1.1.0-arm64-mac.zip)
+  > 下载后双击解压缩，然后将应用拖入 `/Applications` (应用程序) 文件夹运行。
+- **Windows (x64) 用户**: [下载 财报智析 v1.1.0 (Win x64)](https://github.com/zhangbo0908/FinAnalysis/releases/download/v1.1.0/desktop-app-1.1.0-setup.exe)
+  > 下载后直接运行 Setup 安装程序。
 
 ## 1. 产品概述
 
-本项目通过“大模型瘦客户端架构”，彻底告别了本地沉重的 Python 深度学习环境与 OCR 引擎，采用原生 Node.js 直连云端前沿多模态大模型（如 GPT-5, Claude 4.6, Gemini 3 等），在保证数据隐私安全的前提下，提供极速、精准的财报分析体验。
+本项目通过“大模型瘦客户端架构”，彻底告别了本地沉重的 Python 深度学习环境与 OCR 引擎，采用原生 Node.js 直连云端前沿多模态大模型（如 GPT-4o, Claude 3.5 Sonnet 等），在保证数据隐私安全的前提下，提供极速、精准的财报分析体验。交互界面全面落实 **拟玻璃化 (Glassmorphism)** 与 **极简主义 (Minimalism)** 的现代设计准则。
 
-### 核心特性
+### ✨ 核心特性
 - **高精度提取**：利用 VLM（视觉语言模型）从 PDF（含扫描件）中原封不动提取资产负债表、利润表与现金流量表。
 - **标准化存储**：一键生成包含多 Sheet 的标准 Excel (`.xlsx`) 文件。
-- **Agentic 推演**：基于 LangChain 驱动的 AI 分析引擎，流式（打字机效果）输出深度财务分析报告。
-- **离线安全体验**：API 密钥本地加密存储，支持用户自带密钥 (BYOK)。
+- **灵活的多级数据源接入**：不仅支持上一环节 PDF 解析直通，也支持直接加载历史本地存储的标准化 Excel 进行并行推演计算。
+- **Agentic 推演矩阵**：内置四大财务角色视角（审计、投资、经营、风控），暴露出原生指令高阶设定口，流式（打字机效果）输出 Markdown 深度报告。
+- **离线安全体验**：API 密钥本地最高级别加密存储，网络连通性一键探测，支持用户自带密钥 (BYOK)。
 
 ## 2. 技术栈
 
