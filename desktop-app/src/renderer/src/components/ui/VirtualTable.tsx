@@ -50,20 +50,24 @@ export function VirtualTable({ data: initialData, columns, onDataChange }: Virtu
     return (
         <div className="rounded-md border bg-card text-card-foreground shadow-sm h-full flex flex-col overflow-hidden">
             <div className="overflow-auto flex-1 h-[400px]">
-                <table className="w-full caption-bottom text-sm relative">
+                {/* 增加 min-w-max 使其在内部可以撑开横向滚动条 */}
+                <table className="w-full caption-bottom text-sm relative min-w-max">
                     <thead className="[&_tr]:border-b sticky top-0 bg-muted/80 backdrop-blur-sm z-10">
                         {table.getHeaderGroups().map(headerGroup => (
                             <tr key={headerGroup.id} className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
-                                {headerGroup.headers.map(header => (
-                                    <th key={header.id} className="h-10 px-4 text-left align-middle font-medium text-muted-foreground whitespace-nowrap overflow-hidden text-ellipsis max-w-[200px]">
-                                        {header.isPlaceholder
-                                            ? null
-                                            : flexRender(
-                                                header.column.columnDef.header,
-                                                header.getContext()
-                                            )}
-                                    </th>
-                                ))}
+                                {headerGroup.headers.map(header => {
+                                    const minWidthClass = (header.column.columnDef.meta as any)?.minWidth || 'min-w-[120px]'
+                                    return (
+                                        <th key={header.id} className={`h-10 px-4 text-left align-middle font-medium text-muted-foreground ${minWidthClass}`}>
+                                            {header.isPlaceholder
+                                                ? null
+                                                : flexRender(
+                                                    header.column.columnDef.header,
+                                                    header.getContext()
+                                                )}
+                                        </th>
+                                    )
+                                })}
                             </tr>
                         ))}
                     </thead>
@@ -114,7 +118,8 @@ export const EditableCell = ({ getValue, row: { index }, column: { id }, table }
             value={value as string}
             onChange={e => setValue(e.target.value)}
             onBlur={onBlur}
-            className="w-full h-full bg-transparent px-4 py-2 hover:bg-black/5 dark:hover:bg-white/5 focus:bg-background outline-none focus:ring-1 focus:ring-ring transition-colors truncate"
+            title={value as string} // 悬浮显示完整内容
+            className="w-full h-full bg-transparent px-4 py-2 hover:bg-black/5 dark:hover:bg-white/5 focus:bg-background outline-none focus:ring-1 focus:ring-ring transition-colors"
         />
     )
 }

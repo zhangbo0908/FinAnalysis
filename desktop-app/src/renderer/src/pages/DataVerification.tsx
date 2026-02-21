@@ -8,16 +8,29 @@ import { createColumnHelper } from '@tanstack/react-table'
 // 动态创建两栏表结构以便映射 JSON 数据（键值对展示）
 const columnHelper = createColumnHelper<any>()
 
+function formatColumnHeader(key: string): string {
+    if (key.endsWith('_R')) {
+        return key.replace('_R', ' (权益侧)')
+    }
+    return key
+}
+
 function generateColumnsFromData(data: Record<string, any>[]) {
     if (!data || data.length === 0) return []
     const keys = Object.keys(data[0])
-    return keys.map(key =>
-        columnHelper.accessor(key, {
-            header: key,
+    return keys.map(key => {
+        // 判断是否是指标或科目列（通常需要更宽）
+        const isSubjectColumn = key.includes('项目') || key.includes('资产') || key.includes('负债') || key.includes('权益')
+
+        return columnHelper.accessor(key, {
+            header: formatColumnHeader(key),
             cell: EditableCell,
-            // Provide a sensible sizing logic or minSize
+            // 赋给 meta 一个特定的宽度信息供渲染消费
+            meta: {
+                minWidth: isSubjectColumn ? 'min-w-[200px]' : 'min-w-[150px]'
+            }
         })
-    )
+    })
 }
 
 export function DataVerification() {
@@ -58,8 +71,17 @@ export function DataVerification() {
         }
     }, [imagesBase64])
 
-    // 当前正在处理的图片索引（用于显示进度）
-    const [currentImageIndex, setCurrentImageIndex] = useState(0)
+    // 撤销原有的 currentImageIndex 状态，因为已废弃单张循环
+    const [warningMsg, setWarningMsg] = useState<string | null>(null)
+
+    useEffect(() => {
+        if (!window.api || !window.api.onExtractWarning) return
+        const cleanup = window.api.onExtractWarning((msg) => {
+            setWarningMsg(msg)
+            // 3秒后自动清除简单的 warning，或者在这里保持显示直到整体结束
+        })
+        return cleanup
+    }, [])
 
     const handleExtraction = async () => {
         if (!window.api || !window.api.extractTables) return
@@ -78,27 +100,21 @@ export function DataVerification() {
                 throw new Error(`系统选定的服务商 '${activeProvider}' 尚未配置 API Key。请前往设置页填写并保存。`)
             }
 
-            // 逐张图片发送，逐表回显
-            for (let i = 0; i < imagesBase64.length; i++) {
-                setCurrentImageIndex(i + 1)
-                const payload = {
-                    provider: activeProvider,
-                    imagesBase64: [imagesBase64[i]]   // 每次只发一张
-                }
 
-                const response = await window.api.extractTables(payload)
+            setWarningMsg(null)
 
-                // 追加而非覆盖：只更新有数据返回的表
-                if (response.balanceSheet && response.balanceSheet.length > 0) {
-                    setBalanceSheet(prev => [...prev, ...response.balanceSheet])
-                }
-                if (response.incomeStatement && response.incomeStatement.length > 0) {
-                    setIncomeStatement(prev => [...prev, ...response.incomeStatement])
-                }
-                if (response.cashFlowStatement && response.cashFlowStatement.length > 0) {
-                    setCashFlowStatement(prev => [...prev, ...response.cashFlowStatement])
-                }
+            const payload = {
+                provider: activeProvider,
+                imagesBase64: imagesBase64   // 并发发送所有图片
             }
+
+            const response = await window.api.extractTables(payload)
+
+            if (response.balanceSheet) setBalanceSheet(response.balanceSheet)
+            if (response.incomeStatement) setIncomeStatement(response.incomeStatement)
+            if (response.cashFlowStatement) setCashFlowStatement(response.cashFlowStatement)
+
+
 
         } catch (err: any) {
             hasRequestedRef.current = false
@@ -211,7 +227,15 @@ export function DataVerification() {
                     {isExtracting ? (
                         <div className="absolute inset-0 z-10 bg-background/50 backdrop-blur-sm flex flex-col items-center justify-center space-y-4">
                             <Loader2 className="w-10 h-10 text-primary animate-spin" />
-                            <p className="font-semibold text-lg text-primary animate-pulse w-64 text-center">正在处理第 {currentImageIndex} / {imagesBase64.length} 张图片<br />请耐心等待 {providerName} 思考...</p>
+                            <p className="font-semibold text-lg text-primary animate-pulse w-72 text-center">
+                                正在并发处理 {imagesBase64.length} 张图片<br />请耐心等待 {providerName} 思考...
+                            </p>
+                            {warningMsg && (
+                                <div className="mt-4 px-4 py-2 bg-yellow-500/10 text-yellow-600 border border-yellow-500/20 rounded-md text-sm font-medium animate-in fade-in slide-in-from-bottom-2">
+                                    <AlertCircle className="w-4 h-4 inline-block mr-2 align-text-bottom" />
+                                    {warningMsg}
+                                </div>
+                            )}
                         </div>
                     ) : error ? (
                         <div className="absolute inset-0 z-10 flex items-center justify-center p-8">

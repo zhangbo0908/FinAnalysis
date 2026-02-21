@@ -19,6 +19,7 @@ interface Window {
             incomeStatement: Record<string, any>[]
             cashFlowStatement: Record<string, any>[]
         }>
+        onExtractWarning: (callback: (msg: string) => void) => () => void
         parseLocalExcel: (fileData: ArrayBuffer) => Promise<{
             balanceSheet: Record<string, any>[]
             incomeStatement: Record<string, any>[]

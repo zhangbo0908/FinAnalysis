@@ -6,11 +6,11 @@
 
 ## 📥 下载安装
 
-您可以前往 [GitHub Releases](https://github.com/zhangbo0908/FinAnalysis/releases) 页面查阅更新日志并下载最新版 (v1.1.0) 安装包。
+您可以前往 [GitHub Releases](https://github.com/zhangbo0908/FinAnalysis/releases) 页面查阅更新日志并下载最新版 (v1.2.0) 安装包。
 
-- **macOS (Apple Silicon) 用户**: [下载 财报智析 v1.1.0 (Mac ARM64)](https://github.com/zhangbo0908/FinAnalysis/releases/download/v1.1.0/%E8%B4%A2%E6%8A%A5%E6%99%BA%E6%9E%90-1.1.0-arm64-mac.zip)
+- **macOS (Apple Silicon) 用户**: [下载 财报智析 v1.2.0 (Mac ARM64)](https://github.com/zhangbo0908/FinAnalysis/releases/download/v1.2.0/%E8%B4%A2%E6%8A%A5%E6%99%BA%E6%9E%90-1.2.0-arm64-mac.zip)
   > 下载后双击解压缩，然后将应用拖入 `/Applications` (应用程序) 文件夹运行。
-- **Windows (x64) 用户**: [下载 财报智析 v1.1.0 (Win x64)](https://github.com/zhangbo0908/FinAnalysis/releases/download/v1.1.0/desktop-app-1.1.0-setup.exe)
+- **Windows (x64) 用户**: [下载 财报智析 v1.2.0 (Win x64)](https://github.com/zhangbo0908/FinAnalysis/releases/download/v1.2.0/desktop-app-1.2.0-setup.exe)
   > 下载后直接运行 Setup 安装程序。
 
 ## 1. 产品概述
@@ -18,7 +18,9 @@
 本项目通过“大模型瘦客户端架构”，彻底告别了本地沉重的 Python 深度学习环境与 OCR 引擎，采用原生 Node.js 直连云端前沿多模态大模型（如 GPT-4o, Claude 3.5 Sonnet 等），在保证数据隐私安全的前提下，提供极速、精准的财报分析体验。交互界面全面落实 **拟玻璃化 (Glassmorphism)** 与 **极简主义 (Minimalism)** 的现代设计准则。
 
 ### ✨ 核心特性
-- **高精度提取**：利用 VLM（视觉语言模型）从 PDF（含扫描件）中原封不动提取资产负债表、利润表与现金流量表。
+- **高精度提取**：利用 VLM（视觉语言模型）自动提取资产负债表、利润表与现金流量表。
+- **并发加速架构**：(v1.2.0+) 采用异步并发任务流，多张报表并行解析，解析耗时缩减约 60%，并具备 API 自适应限流重试机制。
+- **数字化校验工作台**：(v1.2.0+) 增强型虚拟列表布局，支持长数值完整显色与横向滚动校对，内置表头语义化校准。
 - **标准化存储**：一键生成包含多 Sheet 的标准 Excel (`.xlsx`) 文件。
 - **灵活的多级数据源接入**：不仅支持上一环节 PDF 解析直通，也支持直接加载历史本地存储的标准化 Excel 进行并行推演计算。
 - **Agentic 推演矩阵**：内置四大财务角色视角（审计、投资、经营、风控），暴露出原生指令高阶设定口，流式（打字机效果）输出 Markdown 深度报告。

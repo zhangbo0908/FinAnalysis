@@ -127,8 +127,10 @@ app.whenReady().then(() => {
   })
 
   // PDF to VLM extract tables
-  ipcMain.handle('invoke:llm:extractTables', async (_, payload: { provider: string, imagesBase64: string[] }) => {
-    return await extractFinancialTables(payload)
+  ipcMain.handle('invoke:llm:extractTables', async (event, payload: { provider: string, imagesBase64: string[] }) => {
+    return await extractFinancialTables(payload, (msg) => {
+      event.sender.send('stream:extract:warning', msg)
+    })
   })
 
   // Parse local Excel directly

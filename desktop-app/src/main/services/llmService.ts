@@ -138,7 +138,10 @@ export async function testLLMConnection(params: { provider: string, apiKey: stri
     }
 }
 
-export async function extractFinancialTables(params: ExtractionParams): Promise<FinancialTablesJSON> {
+export async function extractFinancialTables(
+    params: ExtractionParams,
+    onWarning?: (msg: string) => void
+): Promise<FinancialTablesJSON> {
     const { provider, imagesBase64 } = params
 
     const credentials = getApiKey(provider)
@@ -148,84 +151,95 @@ export async function extractFinancialTables(params: ExtractionParams): Promise<
 
     const model = getModelInstance(provider, credentials.apiKey, credentials.baseUrl || undefined, credentials.modelName || undefined)
 
-    const messages: (SystemMessage | HumanMessage)[] = [
-        new SystemMessage(SYSTEM_PROMPT)
-    ]
-
-    console.log(`[LLM Service] Initiating extraction request to provider: ${provider}`)
+    console.log(`[LLM Service] Initiating parallel extraction request to provider: ${provider}`)
     console.log(`[LLM Service] Utilizing model node: ${model.getName() || credentials.modelName || 'default'}`)
-    console.log(`[LLM Service] Processing ${imagesBase64.length} image pages...`)
+    console.log(`[LLM Service] Processing ${imagesBase64.length} image pages concurrently...`)
     const startTime = Date.now()
 
-    // Construct multimodel content blocks
-    const contentBlocks = imagesBase64.map(base64 => {
-        return {
-            type: 'image_url' as const,
-            image_url: {
-                url: base64
+    // Retry and parallel extraction logic for a single image
+    const extractSingleImage = async (base64: string, index: number): Promise<RawLLMOutput> => {
+        let retries = 0
+        const maxRetries = 3
+
+        const messages = [
+            new SystemMessage(SYSTEM_PROMPT),
+            new HumanMessage({
+                content: [
+                    {
+                        type: 'text',
+                        text: 'Please carefully review this financial report page and extract any Balance Sheet, Income statement, or Cash Flow Statement tables present:'
+                    },
+                    {
+                        type: 'image_url',
+                        image_url: { url: base64 }
+                    }
+                ]
+            })
+        ]
+
+        while (true) {
+            try {
+                console.log(`[LLM Service] Extracting image ${index + 1}/${imagesBase64.length} (Attempt ${retries + 1})...`)
+                const response = await model.invoke(messages)
+
+                let content = response.content as string
+                let jsonString = content.trim()
+
+                const jsonMatch = jsonString.match(/\{[\s\S]*\}/)
+                if (jsonMatch) {
+                    jsonString = jsonMatch[0]
+                } else {
+                    if (jsonString.startsWith('```json')) jsonString = jsonString.slice(7)
+                    if (jsonString.startsWith('```')) jsonString = jsonString.slice(3)
+                    if (jsonString.endsWith('```')) jsonString = jsonString.slice(0, -3)
+                }
+
+                return JSON.parse(jsonString.trim()) as RawLLMOutput
+            } catch (err: any) {
+                const isRateLimit = err.message?.includes('429') || err.message?.toLowerCase().includes('rate limit')
+                if (isRateLimit && retries < maxRetries) {
+                    retries++
+                    const waitTime = retries * 2000
+                    const warningMsg = `API 触发并发限制，第 ${index + 1} 张图片将在 ${waitTime / 1000} 秒后重试...`
+                    console.warn(`[LLM Service WARNING] ${warningMsg}`)
+                    if (onWarning) onWarning(warningMsg)
+
+                    await new Promise(resolve => setTimeout(resolve, waitTime))
+                } else {
+                    throw new Error(`第 ${index + 1} 张图片解析失败: ${err.message}`)
+                }
             }
         }
-    })
-
-    // Add the human message with all image chunks
-    messages.push(new HumanMessage({
-        content: [
-            {
-                type: 'text',
-                text: 'Please carefully review the following financial report pages and extract the Balance Sheet, Income statement, and Cash Flow Statement:'
-            },
-            ...contentBlocks
-        ]
-    }))
+    }
 
     try {
-        console.log(`[LLM Service] Connection established! Waiting for model to process and generate JSON...`)
-
-        let elapsedSeconds = 0
-        const loadingInterval = setInterval(() => {
-            elapsedSeconds += 2
-            process.stdout.write(`\r[LLM Service] Still thinking... (${elapsedSeconds}s elapsed)`)
-        }, 2000)
-
-        const response = await model.invoke(messages)
-
-        clearInterval(loadingInterval)
-        process.stdout.write('\n') // clear the current line after done
+        const promises = imagesBase64.map((base64, idx) => extractSingleImage(base64, idx))
+        const rawResults = await Promise.all(promises)
 
         const duration = ((Date.now() - startTime) / 1000).toFixed(1)
-        console.log(`[LLM Service] Model finished generating in ${duration}s.`)
+        console.log(`[LLM Service] All ${imagesBase64.length} images processed in ${duration}s.`)
 
-        let content = response.content as string
+        const finalLeft: Record<string, any>[] = []
+        const finalRight: Record<string, any>[] = []
+        const finalIncome: Record<string, any>[] = []
+        const finalCash: Record<string, any>[] = []
 
-        let jsonString = content.trim()
-
-        // Use Regex to robustly find the first valid JSON block
-        const jsonMatch = jsonString.match(/\{[\s\S]*\}/)
-        if (jsonMatch) {
-            jsonString = jsonMatch[0]
-        } else {
-            // Fallback to basic slice if regex fails but there are markdowns
-            if (jsonString.startsWith('```json')) jsonString = jsonString.slice(7)
-            if (jsonString.startsWith('```')) jsonString = jsonString.slice(3)
-            if (jsonString.endsWith('```')) jsonString = jsonString.slice(0, -3)
+        for (const res of rawResults) {
+            if (res.balanceSheet_left) finalLeft.push(...res.balanceSheet_left)
+            if (res.balanceSheet_right) finalRight.push(...res.balanceSheet_right)
+            if (res.incomeStatement) finalIncome.push(...res.incomeStatement)
+            if (res.cashFlowStatement) finalCash.push(...res.cashFlowStatement)
         }
 
-        console.log(`[LLM Service] Attempting to parse JSON string of length ${jsonString.length}...`)
-        const rawOutput: RawLLMOutput = JSON.parse(jsonString.trim())
-
-        // 使用确定性代码将资产负债表左右两侧合并为宽表
-        const mergedBalance = mergeBalanceSheet(
-            rawOutput.balanceSheet_left || [],
-            rawOutput.balanceSheet_right || []
-        )
+        const mergedBalance = mergeBalanceSheet(finalLeft, finalRight)
 
         const jsonFormat: FinancialTablesJSON = {
             balanceSheet: mergedBalance,
-            incomeStatement: rawOutput.incomeStatement || [],
-            cashFlowStatement: rawOutput.cashFlowStatement || []
+            incomeStatement: finalIncome,
+            cashFlowStatement: finalCash
         }
 
-        console.log(`[LLM Service] Extraction parsed successfully with records: Balance_L(${rawOutput.balanceSheet_left?.length || 0}) + Balance_R(${rawOutput.balanceSheet_right?.length || 0}) => Merged(${mergedBalance.length}), Income(${jsonFormat.incomeStatement?.length || 0}), CashFlow(${jsonFormat.cashFlowStatement?.length || 0}).`)
+        console.log(`[LLM Service] Final parsed records: MergedBalance(${mergedBalance.length}), Income(${jsonFormat.incomeStatement.length}), CashFlow(${jsonFormat.cashFlowStatement.length}).`)
 
         return jsonFormat
     } catch (error: any) {

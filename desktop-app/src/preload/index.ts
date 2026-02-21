@@ -17,6 +17,11 @@ const api = {
 
   // llm operations
   extractTables: (payload: { provider: string, imagesBase64: string[] }) => ipcRenderer.invoke('invoke:llm:extractTables', payload),
+  onExtractWarning: (callback: (msg: string) => void) => {
+    const handler = (_event: any, msg: string) => callback(msg)
+    ipcRenderer.on('stream:extract:warning', handler)
+    return () => ipcRenderer.removeListener('stream:extract:warning', handler)
+  },
   parseLocalExcel: (fileData: ArrayBuffer) => ipcRenderer.invoke('invoke:excel:parseLocal', fileData),
   testConnection: (payload: { provider: string, apiKey: string, baseUrl?: string, modelName?: string }) => ipcRenderer.invoke('invoke:llm:testConnection', payload),
   analyzeFinancials: (payload: { provider: string, data: any, prompt?: string }) => ipcRenderer.invoke('invoke:llm:analyzeFinancials', payload),
