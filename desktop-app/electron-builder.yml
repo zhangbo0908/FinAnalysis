@@ -23,6 +23,7 @@ nsis:
   uninstallDisplayName: ${productName}
   createDesktopShortcut: always
 mac:
+  artifactName: FinAnalysis-${version}-arm64.${ext}
   target:
     - target: zip
       arch:
