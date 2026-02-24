@@ -36,32 +36,32 @@ function getModelInstance(provider: string, apiKey: string, baseUrl?: string, mo
     switch (provider.toLowerCase()) {
         case 'openai':
             return new ChatOpenAI({
-                openAIApiKey: apiKey,
+                apiKey: apiKey,
                 configuration: baseUrl ? { baseURL: baseUrl } : undefined,
                 modelName: modelName || 'gpt-4o',
-                temperature: 0,
+                temperature: 0.01,
             })
         case 'anthropic':
             return new ChatAnthropic({
                 anthropicApiKey: apiKey,
                 anthropicApiUrl: baseUrl,
                 modelName: modelName || 'claude-3-5-sonnet-20240620',
-                temperature: 0,
+                temperature: 0.01,
             })
         case 'gemini':
             return new ChatGoogleGenerativeAI({
                 apiKey: apiKey,
                 baseUrl: baseUrl,
                 model: modelName || 'gemini-1.5-pro',
-                temperature: 0,
+                temperature: 0.01,
             })
         case 'custom':
             // Fallback to OpenAI library but with custom model/url
             return new ChatOpenAI({
-                openAIApiKey: apiKey,
+                apiKey: apiKey,
                 configuration: { baseURL: baseUrl },
                 modelName: modelName || 'proxy-model',
-                temperature: 0,
+                temperature: 0.01,
             })
         default:
             throw new Error(`Unsupported AI provider: ${provider}`)
@@ -171,10 +171,11 @@ export async function extractFinancialTables(
     }
 
     const model = getModelInstance(provider, credentials.apiKey, credentials.baseUrl || undefined, credentials.modelName || undefined)
+    const modelId = credentials.modelName || (model as any).modelName || (model as any).model || provider
 
-    console.log(`[LLM Service] Initiating parallel extraction request to provider: ${provider}`)
-    console.log(`[LLM Service] Utilizing model node: ${model.getName() || credentials.modelName || 'default'}`)
-    console.log(`[LLM Service] Processing ${imagesBase64.length} image pages concurrently...`)
+    console.log(`[${modelId}] Initiating parallel extraction request to provider: ${provider}`)
+    console.log(`[${modelId}] Utilizing model node: ${modelId}`)
+    console.log(`[${modelId}] Processing ${imagesBase64.length} image pages concurrently...`)
     const startTime = Date.now()
 
     // Retry and parallel extraction logic for a single image
@@ -200,7 +201,7 @@ export async function extractFinancialTables(
 
         while (true) {
             try {
-                console.log(`[LLM] 图${index + 1} 开始第 ${retries + 1} 次请求...`)
+                console.log(`[${modelId}] 图${index + 1} 开始第 ${retries + 1} 次请求...`)
                 const t0 = Date.now()
                 const response = await model.invoke(messages)
                 const apiMs = Date.now() - t0
@@ -211,7 +212,7 @@ export async function extractFinancialTables(
                 const parseMs = Date.now() - t1
 
                 console.log(
-                    `[LLM] 图${index + 1} 完成: ` +
+                    `[${modelId}] 图${index + 1} 完成: ` +
                     `API响应 ${apiMs}ms | ` +
                     `Markdown解析 ${parseMs}ms | ` +
                     `输出 Token 约 ${Math.round(content.length / 4)} | ` +
@@ -227,7 +228,7 @@ export async function extractFinancialTables(
                     retries++
                     const waitTime = retries * 2000
                     const warningMsg = `API 触发并发限制，第 ${index + 1} 张图片将在 ${waitTime / 1000} 秒后重试...`
-                    console.warn(`[LLM Service WARNING] ${warningMsg}`)
+                    console.warn(`[${modelId} WARNING] ${warningMsg}`)
                     if (onWarning) onWarning(warningMsg)
 
                     await new Promise(resolve => setTimeout(resolve, waitTime))
@@ -239,12 +240,12 @@ export async function extractFinancialTables(
     }
 
     try {
-        console.log(`[LLM] 并行发起 ${imagesBase64.length} 张图片的 API 请求...`)
+        console.log(`[${modelId}] 并行发起 ${imagesBase64.length} 张图片的 API 请求...`)
         const promises = imagesBase64.map((base64, idx) => extractSingleImage(base64, idx))
         const rawResults = await Promise.all(promises)
 
         const apiDuration = ((Date.now() - startTime) / 1000).toFixed(1)
-        console.log(`[LLM] 所有图片 API 请求完成，总耗时 ${apiDuration}s`)
+        console.log(`[${modelId}] 所有图片 API 请求完成，总耗时 ${apiDuration}s`)
 
         const mergeStart = Date.now()
         const finalJson: FinancialTablesJSON = {
@@ -261,12 +262,12 @@ export async function extractFinancialTables(
         const mergeMs = Date.now() - mergeStart
 
         console.log(
-            `[LLM] 数据合并完成 (${mergeMs}ms): ` +
+            `[${modelId}] 数据合并完成 (${mergeMs}ms): ` +
             `资产负债表 ${finalJson.balanceSheet.length} 行 | ` +
             `利润表 ${finalJson.incomeStatement.length} 行 | ` +
             `现金流表 ${finalJson.cashFlowStatement.length} 行`
         )
-        console.log(`[LLM] 全流程总耗时: ${((Date.now() - startTime) / 1000).toFixed(1)}s`)
+        console.log(`[${modelId}] 全流程总耗时: ${((Date.now() - startTime) / 1000).toFixed(1)}s`)
 
         return finalJson
     } catch (error: any) {

@@ -92,14 +92,13 @@ export function DataVerification() {
             const activeProvider = await window.api.getActiveProvider() || 'gemini'
             const currentSettings = await window.api.getApiKey(activeProvider)
 
-            if (activeProvider && providerMap[activeProvider]) {
-                setProviderName(providerMap[activeProvider])
-            }
-
             if (!currentSettings) {
                 throw new Error(`系统选定的服务商 '${activeProvider}' 尚未配置 API Key。请前往设置页填写并保存。`)
             }
 
+            // Prioritize displaying specific model ID over generic provider name
+            const displayName = currentSettings.modelName || providerMap[activeProvider] || activeProvider
+            setProviderName(displayName)
 
             setWarningMsg(null)
 

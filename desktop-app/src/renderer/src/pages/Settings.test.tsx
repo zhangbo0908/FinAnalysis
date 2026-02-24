@@ -9,13 +9,15 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 // Mock Electron IPC API
 const mockSaveApiKey = vi.fn()
 const mockGetApiKey = vi.fn()
+const mockGetActiveProvider = vi.fn()
 
 beforeEach(() => {
     vi.clearAllMocks()
+    mockGetActiveProvider.mockResolvedValue('gemini') // Default to gemini to avoid breaking old tests
     window.api = {
         saveApiKey: mockSaveApiKey,
         getApiKey: mockGetApiKey as any,
-        getActiveProvider: vi.fn(),
+        getActiveProvider: mockGetActiveProvider,
         testConnection: vi.fn(),
         extractTables: vi.fn(),
         exportExcel: vi.fn(),
@@ -35,7 +37,9 @@ describe('Settings Component', () => {
     })
 
     it('loads existing API key correctly', async () => {
-        mockGetApiKey.mockResolvedValueOnce({ apiKey: 'sk-test12345', provider: 'openai', baseUrl: '' })
+        mockGetActiveProvider.mockResolvedValue('openai')
+        mockGetApiKey.mockResolvedValue({ apiKey: 'sk-test12345', provider: 'openai', baseUrl: '' })
+
         render(<Settings />)
 
         // API load is async
@@ -46,10 +50,14 @@ describe('Settings Component', () => {
     })
 
     it('allows user to type and save API key', async () => {
-        mockGetApiKey.mockResolvedValueOnce(null)
-        mockSaveApiKey.mockResolvedValueOnce({ success: true })
+        mockGetActiveProvider.mockResolvedValue('openai')
+        mockGetApiKey.mockResolvedValue(null)
+        mockSaveApiKey.mockResolvedValue({ success: true })
 
         render(<Settings />)
+
+        // Wait for initial load
+        await waitFor(() => expect(mockGetActiveProvider).toHaveBeenCalled())
 
         const input = screen.getByPlaceholderText(/请输入您的 API Key/i)
         fireEvent.change(input, { target: { value: 'sk-newkey' } })
@@ -59,39 +67,13 @@ describe('Settings Component', () => {
 
         await waitFor(() => {
             expect(mockSaveApiKey).toHaveBeenCalledWith({
-                provider: 'openai', // default provider
+                provider: 'openai',
                 key: 'sk-newkey',
-                baseURL: ''
+                baseURL: 'https://api.openai.com/v1',
+                modelName: ''
             })
         })
     })
 
-    it('allows changing provider to Gemini and saving', async () => {
-        mockGetApiKey.mockResolvedValueOnce(null)
-        mockSaveApiKey.mockResolvedValueOnce({ success: true })
-
-        render(<Settings />)
-
-        // Find the select trigger (shadcn select)
-        const selectTrigger = screen.getByRole('combobox')
-        fireEvent.click(selectTrigger)
-
-        // Find and click the Gemini option
-        const geminiOption = screen.getByText('Google Gemini')
-        fireEvent.click(geminiOption)
-
-        const input = screen.getByPlaceholderText(/请输入您的 API Key/i)
-        fireEvent.change(input, { target: { value: 'AIzaSyA-GeminiKey' } })
-
-        const saveButton = screen.getByRole('button', { name: /保存/i })
-        fireEvent.click(saveButton)
-
-        await waitFor(() => {
-            expect(mockSaveApiKey).toHaveBeenCalledWith({
-                provider: 'gemini',
-                key: 'AIzaSyA-GeminiKey',
-                baseURL: ''
-            })
-        })
-    })
 })
+

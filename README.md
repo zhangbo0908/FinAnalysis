@@ -6,11 +6,11 @@
 
 ## 📥 下载安装
 
-您可以前往 [GitHub Releases](https://github.com/zhangbo0908/FinAnalysis/releases) 页面查阅更新日志并下载最新版 (v1.2.1) 安装包。
+您可以前往 [GitHub Releases](https://github.com/zhangbo0908/FinAnalysis/releases) 页面查阅更新日志并下载最新版 (v1.2.2) 安装包。
 
-- **macOS (Apple Silicon) 用户**: [下载 财报智析 v1.2.1 (Mac ARM64)](https://github.com/zhangbo0908/FinAnalysis/releases/download/v1.2.1/%E8%B4%A2%E6%8A%A5%E6%99%BA%E6%9E%90-1.2.1-arm64-mac.zip)
+- **macOS (Apple Silicon) 用户**: [下载 财报智析 v1.2.2 (Mac ARM64)](https://github.com/zhangbo0908/FinAnalysis/releases/download/v1.2.2/FinAnalysis-1.2.2-arm64.zip)
   > 下载后双击解压缩，然后将应用拖入 `/Applications` (应用程序) 文件夹运行。
-- **Windows (x64) 用户**: [下载 财报智析 v1.2.1 (Win x64)](https://github.com/zhangbo0908/FinAnalysis/releases/download/v1.2.1/desktop-app-1.2.1-setup.exe)
+- **Windows (x64) 用户**: [下载 财报智析 v1.2.2 (Win x64)](https://github.com/zhangbo0908/FinAnalysis/releases/download/v1.2.2/desktop-app-1.2.2-setup.exe)
   > 下载后直接运行 Setup 安装程序。
 
 ## 1. 产品概述

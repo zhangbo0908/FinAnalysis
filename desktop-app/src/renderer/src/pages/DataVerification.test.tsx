@@ -24,10 +24,10 @@ beforeEach(() => {
     vi.clearAllMocks()
     window.api = {
         saveApiKey: vi.fn(),
-        getApiKey: vi.fn(),
-        getActiveProvider: vi.fn(),
+        getApiKey: mockGetApiKey as any,
+        getActiveProvider: mockGetActiveProvider,
         testConnection: vi.fn(),
-        extractTables: vi.fn(),
+        extractTables: mockExtractTables,
         exportExcel: vi.fn(),
         exportMarkdown: vi.fn(),
         analyzeFinancials: vi.fn(),
@@ -61,7 +61,7 @@ describe('DataVerification Component', () => {
 
         render(<DataVerification />)
 
-        expect(screen.getByText(/正在连通云端多模态大模型/i)).toBeInTheDocument()
+        expect(screen.getByText(/正在并发处理/i)).toBeInTheDocument()
 
         resolveExtraction({
             balanceSheet: [{ Item: 'Cash', Value: '100' }],
@@ -70,7 +70,7 @@ describe('DataVerification Component', () => {
         })
 
         await waitFor(() => {
-            expect(screen.queryByText(/正在连通云端多模态大模型/i)).not.toBeInTheDocument()
+            expect(screen.queryByText(/正在并发处理/i)).not.toBeInTheDocument()
             expect(screen.getByText('Item')).toBeInTheDocument()
             expect(screen.getByText('Value')).toBeInTheDocument()
         })

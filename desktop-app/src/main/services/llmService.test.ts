@@ -5,19 +5,18 @@ import * as db from '../database'
 // 绕开真实网络请求和真实 LangChain 模型内部依赖
 vi.mock('@langchain/openai', () => {
     return {
-        ChatOpenAI: vi.fn().mockImplementation(() => {
-            return {
-                invoke: vi.fn().mockResolvedValue({
-                    content: '```json\n{"balanceSheet": [{"Item": "Cash", "2023": "100"}], "incomeStatement": [], "cashFlowStatement": []}\n```'
-                })
-            }
-        })
+        ChatOpenAI: class {
+            getName() { return 'gpt-mock' }
+            invoke = vi.fn().mockResolvedValue({
+                content: '[TableType: BalanceSheet]\n| Item | 2023 |\n|---|---|\n| Cash | 100 |'
+            })
+        }
     }
 })
 
 describe('llmService', () => {
     beforeEach(() => {
-        vi.restoreAllMocks()
+        vi.clearAllMocks()
     })
 
     it('should extract JSON correctly throwing away markdown blocks', async () => {

@@ -156,10 +156,13 @@ function serializeTablesForLLM(data: FinancialTablesJSON): string {
  * 获取模型实例（复用 llmService 中的相同逻辑）
  */
 function getModelInstance(provider: string, apiKey: string, baseUrl?: string, modelName?: string): BaseChatModel {
+    console.log(`[Analysis Debug] getModelInstance - provider: ${provider}, modelName: ${modelName}, hasKey: ${!!apiKey}, baseUrl: ${baseUrl}`)
+
     switch (provider.toLowerCase()) {
         case 'openai':
             return new ChatOpenAI({
-                openAIApiKey: apiKey,
+                apiKey: apiKey,
+                openAIApiKey: apiKey, // Compatibility for some versions
                 configuration: baseUrl ? { baseURL: baseUrl } : undefined,
                 modelName: modelName || 'gpt-4o',
                 temperature: 0.3,
@@ -180,7 +183,8 @@ function getModelInstance(provider: string, apiKey: string, baseUrl?: string, mo
             })
         case 'custom':
             return new ChatOpenAI({
-                openAIApiKey: apiKey,
+                apiKey: apiKey,
+                openAIApiKey: apiKey, // Compatibility
                 configuration: { baseURL: baseUrl },
                 modelName: modelName || 'proxy-model',
                 temperature: 0.3,
@@ -218,9 +222,10 @@ export async function generateFinancialAnalysis(
         credentials.baseUrl || undefined,
         credentials.modelName || undefined
     )
+    const modelId = credentials.modelName || (model as any).modelName || (model as any).model || provider
 
     const serializedData = serializeTablesForLLM(data)
-    console.log(`[Analysis Service] Serialized ${serializedData.length} chars of financial data`)
+    console.log(`[${modelId}] Serialized ${serializedData.length} chars of financial data`)
 
     const today = new Date()
     const dateStr = `${today.getFullYear()}年${today.getMonth() + 1}月${today.getDate()}日`
@@ -239,12 +244,12 @@ ${serializedData}`)
     ]
 
     try {
-        console.log(`[Analysis Service] Starting analysis with provider: ${provider}`)
+        console.log(`[${modelId}] Starting analysis with provider: ${provider}`)
         // 使用 invoke 而非 stream，避免 Gemini 的流式解析 Bug
         const response = await model.invoke(messages)
         const fullContent = typeof response.content === 'string' ? response.content : ''
 
-        console.log(`[Analysis Service] Got response of ${fullContent.length} chars, simulating stream...`)
+        console.log(`[${modelId}] Got response of ${fullContent.length} chars, simulating stream...`)
 
         // 模拟打字机效果：按段落逐步推送
         const paragraphs = fullContent.split('\n')
@@ -255,10 +260,10 @@ ${serializedData}`)
             await new Promise(resolve => setTimeout(resolve, 30))
         }
 
-        console.log(`[Analysis Service] Analysis completed`)
+        console.log(`[${modelId}] Analysis completed`)
         onDone()
     } catch (error: any) {
-        console.error(`[Analysis Service ERROR]`, error.message)
+        console.error(`[${modelId} ERROR]`, error.message)
         onError(`财务分析失败: ${error.message}`)
     }
 }

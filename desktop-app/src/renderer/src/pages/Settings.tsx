@@ -29,6 +29,17 @@ export function Settings() {
     const [message, setMessage] = useState<{ text: string, type: 'success' | 'error' } | null>(null)
 
     useEffect(() => {
+        // Load active provider on mount
+        const loadActive = async () => {
+            if (window.api && window.api.getActiveProvider) {
+                const active = await window.api.getActiveProvider()
+                if (active) setProvider(active)
+            }
+        }
+        loadActive()
+    }, [])
+
+    useEffect(() => {
         // Load existing settings when provider changes
         const loadSettings = async () => {
             if (window.api && window.api.getApiKey) {
