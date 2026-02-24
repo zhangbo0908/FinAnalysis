@@ -10,14 +10,6 @@ export interface ExtractionParams {
     imagesBase64: string[] // Data URL string starting with 'data:image/jpeg;base64,...'
 }
 
-// 大模型原始输出的接口（资产负债表分左右两侧）
-export interface RawLLMOutput {
-    balanceSheet_left: Array<Record<string, any>>   // 资产侧（左）
-    balanceSheet_right: Array<Record<string, any>>  // 负债+权益侧（右）
-    incomeStatement: Array<Record<string, any>>
-    cashFlowStatement: Array<Record<string, any>>
-}
-
 // 合并后的最终接口（资产负债表已拼接为宽表）
 export interface FinancialTablesJSON {
     balanceSheet: Array<Record<string, any>>
@@ -25,68 +17,19 @@ export interface FinancialTablesJSON {
     cashFlowStatement: Array<Record<string, any>>
 }
 
-/**
- * 将资产负债表的左右两侧数组合并为一张宽表。
- * 较短的一侧在倒数第二行之前插入空行，使得两侧的最后一行（总计行）对齐。
- */
-function mergeBalanceSheet(
-    left: Array<Record<string, any>>,
-    right: Array<Record<string, any>>
-): Array<Record<string, any>> {
-    if (!left || left.length === 0) return right || []
-    if (!right || right.length === 0) return left || []
-
-    const leftKeys = Object.keys(left[0])
-    const rightKeys = Object.keys(right[0])
-    const emptyLeft: Record<string, any> = {}
-    const emptyRight: Record<string, any> = {}
-    leftKeys.forEach(k => emptyLeft[k] = '')
-    rightKeys.forEach(k => emptyRight[k] = '')
-
-    // 将较短的一侧在最后一行（总计行）前补空行，使双侧等长
-    const maxLen = Math.max(left.length, right.length)
-    const paddedLeft = [...left]
-    const paddedRight = [...right]
-
-    while (paddedLeft.length < maxLen) {
-        // 在倒数第二个位置（总计行之前）插入空行
-        paddedLeft.splice(paddedLeft.length - 1, 0, { ...emptyLeft })
-    }
-    while (paddedRight.length < maxLen) {
-        paddedRight.splice(paddedRight.length - 1, 0, { ...emptyRight })
-    }
-
-    // 逐行合并左右，右侧 key 加后缀 "_R" 避免同名覆盖
-    const merged: Array<Record<string, any>> = []
-    for (let i = 0; i < maxLen; i++) {
-        const row: Record<string, any> = { ...paddedLeft[i] }
-        const rightRow = paddedRight[i]
-        for (const key of Object.keys(rightRow)) {
-            // 如果右侧 key 已存在于左侧，加 _R 后缀
-            const newKey = key in row ? `${key}_R` : key
-            row[newKey] = rightRow[key]
-        }
-        merged.push(row)
-    }
-    return merged
-}
-
 const SYSTEM_PROMPT = `
-You are an expert financial data extraction AI. Extract data from the provided financial report images into JSON.
+You are an expert financial data extraction AI. Extract data from the provided financial report images into Markdown tables.
 
-The JSON must contain these four top-level arrays:
-- "balanceSheet_left": The LEFT side of the Balance Sheet (Assets / 资产). Read top-to-bottom.
-- "balanceSheet_right": The RIGHT side of the Balance Sheet (Liabilities & Equity / 负债和所有者权益). Read top-to-bottom.
-- "incomeStatement": The Income Statement (利润表). Read top-to-bottom.
-- "cashFlowStatement": The Cash Flow Statement (现金流量表). Read top-to-bottom.
-
-Rules:
-1. Each array item is one row. Keys = column headers, values = cell content (string or number).
-2. For the Balance Sheet: extract left side and right side as TWO SEPARATE arrays. Do NOT try to align them horizontally. Just read each side independently from top to bottom.
-3. For Income Statement and Cash Flow Statement: extract as a single simple table from top to bottom.
-4. Transcribe exactly what you see. Do not omit or summarize.
-5. If a table spans multiple pages, continue appending rows.
-6. Do not wrap in markdown code blocks. Output raw JSON only, parseable by JSON.parse().
+Please strictly follow these rules:
+1. Extract the Balance Sheet (资产负债表), Income Statement (利润表), and Cash Flow Statement (现金流量表) exactly as they appear in the image.
+2. Output your findings as standard Markdown tables. 
+3. PREPEND each table with exactly one of these headers before the markdown table starts (do not use any other header text):
+   [TableType: BalanceSheet]
+   [TableType: IncomeStatement]
+   [TableType: CashFlowStatement]
+4. For the Balance Sheet: if it has both left (Assets) and right (Liabilities) sections, just extract the entire wide table exactly as it is (e.g., column headers like: 项目 | 期末余额 | 年初余额 | 项目 | 期末余额 | 年初余额). DO NOT try to split it yourself.
+5. Transcribe exactly what you see. Do not omit or summarize. If a table spans multiple pages, continue appending rows.
+6. Do NOT output JSON. Just the header tags and the Markdown tables.
 `
 
 function getModelInstance(provider: string, apiKey: string, baseUrl?: string, modelName?: string): BaseChatModel {
@@ -138,6 +81,84 @@ export async function testLLMConnection(params: { provider: string, apiKey: stri
     }
 }
 
+/**
+ * 将 Markdown 表格内容解析为 JSON 数组
+ */
+function parseMarkdownTableToJSON(tableContent: string): Record<string, string>[] {
+    const lines = tableContent.split('\n').filter(line => line.trim().startsWith('|'))
+    if (lines.length < 2) return []
+
+    // 提取表头
+    const headers = lines[0]
+        .split('|')
+        .slice(1, -1) // 移除首尾的空串
+        .map(h => h.trim())
+
+    // lines[1] 是 markdown 的分隔线 '|---|---|'，跳过
+    const records: Record<string, string>[] = []
+
+    for (let i = 2; i < lines.length; i++) {
+        const rowData = lines[i]
+            .split('|')
+            .slice(1, -1)
+            .map(cell => cell.trim())
+
+        const record: Record<string, string> = {}
+        let hasData = false
+        headers.forEach((header, idx) => {
+            const val = rowData[idx] || ''
+            if (val && val !== '-' && val !== '') hasData = true
+            // 防止重复表头字段覆盖，比如有两个“项目”
+            let finalHeader = header || `Column_${idx}`
+            while (record[finalHeader] !== undefined) {
+                finalHeader += '_R'  // 针对右侧复用的表头加后缀
+            }
+            record[finalHeader] = val
+        })
+
+        if (hasData) {
+            records.push(record)
+        }
+    }
+
+    return records
+}
+
+/**
+ * 根据大模型输出的文本段落，提取各类 Markdown 表格数据
+ */
+function extractTablesFromMarkdown(markdownText: string): FinancialTablesJSON {
+    const jsonFormat: FinancialTablesJSON = {
+        balanceSheet: [],
+        incomeStatement: [],
+        cashFlowStatement: []
+    }
+
+    // 根据预先定义的标识符划分表格区块
+    const blocks = markdownText.split(/\[TableType:/i)
+
+    for (const block of blocks) {
+        if (!block.trim()) continue
+
+        const typeMatch = block.match(/^\s*([A-Za-z]+)\]/)
+        if (!typeMatch) continue
+
+        const tableType = typeMatch[1].toLowerCase()
+        const tableContent = block.substring(typeMatch[0].length)
+        const parsedData = parseMarkdownTableToJSON(tableContent)
+
+        if (tableType.includes('balance')) {
+            jsonFormat.balanceSheet.push(...parsedData)
+        } else if (tableType.includes('income')) {
+            jsonFormat.incomeStatement.push(...parsedData)
+        } else if (tableType.includes('cash')) {
+            jsonFormat.cashFlowStatement.push(...parsedData)
+        }
+    }
+
+    return jsonFormat
+}
+
 export async function extractFinancialTables(
     params: ExtractionParams,
     onWarning?: (msg: string) => void
@@ -157,7 +178,7 @@ export async function extractFinancialTables(
     const startTime = Date.now()
 
     // Retry and parallel extraction logic for a single image
-    const extractSingleImage = async (base64: string, index: number): Promise<RawLLMOutput> => {
+    const extractSingleImage = async (base64: string, index: number): Promise<FinancialTablesJSON> => {
         let retries = 0
         const maxRetries = 3
 
@@ -179,22 +200,27 @@ export async function extractFinancialTables(
 
         while (true) {
             try {
-                console.log(`[LLM Service] Extracting image ${index + 1}/${imagesBase64.length} (Attempt ${retries + 1})...`)
+                console.log(`[LLM] 图${index + 1} 开始第 ${retries + 1} 次请求...`)
+                const t0 = Date.now()
                 const response = await model.invoke(messages)
+                const apiMs = Date.now() - t0
+                const content = response.content as string
 
-                let content = response.content as string
-                let jsonString = content.trim()
+                const t1 = Date.now()
+                const result = extractTablesFromMarkdown(content)
+                const parseMs = Date.now() - t1
 
-                const jsonMatch = jsonString.match(/\{[\s\S]*\}/)
-                if (jsonMatch) {
-                    jsonString = jsonMatch[0]
-                } else {
-                    if (jsonString.startsWith('```json')) jsonString = jsonString.slice(7)
-                    if (jsonString.startsWith('```')) jsonString = jsonString.slice(3)
-                    if (jsonString.endsWith('```')) jsonString = jsonString.slice(0, -3)
-                }
+                console.log(
+                    `[LLM] 图${index + 1} 完成: ` +
+                    `API响应 ${apiMs}ms | ` +
+                    `Markdown解析 ${parseMs}ms | ` +
+                    `输出 Token 约 ${Math.round(content.length / 4)} | ` +
+                    `资产负债表 ${result.balanceSheet.length} 行, ` +
+                    `利润表 ${result.incomeStatement.length} 行, ` +
+                    `现金流 ${result.cashFlowStatement.length} 行`
+                )
 
-                return JSON.parse(jsonString.trim()) as RawLLMOutput
+                return result
             } catch (err: any) {
                 const isRateLimit = err.message?.includes('429') || err.message?.toLowerCase().includes('rate limit')
                 if (isRateLimit && retries < maxRetries) {
@@ -213,37 +239,39 @@ export async function extractFinancialTables(
     }
 
     try {
+        console.log(`[LLM] 并行发起 ${imagesBase64.length} 张图片的 API 请求...`)
         const promises = imagesBase64.map((base64, idx) => extractSingleImage(base64, idx))
         const rawResults = await Promise.all(promises)
 
-        const duration = ((Date.now() - startTime) / 1000).toFixed(1)
-        console.log(`[LLM Service] All ${imagesBase64.length} images processed in ${duration}s.`)
+        const apiDuration = ((Date.now() - startTime) / 1000).toFixed(1)
+        console.log(`[LLM] 所有图片 API 请求完成，总耗时 ${apiDuration}s`)
 
-        const finalLeft: Record<string, any>[] = []
-        const finalRight: Record<string, any>[] = []
-        const finalIncome: Record<string, any>[] = []
-        const finalCash: Record<string, any>[] = []
+        const mergeStart = Date.now()
+        const finalJson: FinancialTablesJSON = {
+            balanceSheet: [],
+            incomeStatement: [],
+            cashFlowStatement: []
+        }
 
         for (const res of rawResults) {
-            if (res.balanceSheet_left) finalLeft.push(...res.balanceSheet_left)
-            if (res.balanceSheet_right) finalRight.push(...res.balanceSheet_right)
-            if (res.incomeStatement) finalIncome.push(...res.incomeStatement)
-            if (res.cashFlowStatement) finalCash.push(...res.cashFlowStatement)
+            finalJson.balanceSheet.push(...res.balanceSheet)
+            finalJson.incomeStatement.push(...res.incomeStatement)
+            finalJson.cashFlowStatement.push(...res.cashFlowStatement)
         }
+        const mergeMs = Date.now() - mergeStart
 
-        const mergedBalance = mergeBalanceSheet(finalLeft, finalRight)
+        console.log(
+            `[LLM] 数据合并完成 (${mergeMs}ms): ` +
+            `资产负债表 ${finalJson.balanceSheet.length} 行 | ` +
+            `利润表 ${finalJson.incomeStatement.length} 行 | ` +
+            `现金流表 ${finalJson.cashFlowStatement.length} 行`
+        )
+        console.log(`[LLM] 全流程总耗时: ${((Date.now() - startTime) / 1000).toFixed(1)}s`)
 
-        const jsonFormat: FinancialTablesJSON = {
-            balanceSheet: mergedBalance,
-            incomeStatement: finalIncome,
-            cashFlowStatement: finalCash
-        }
-
-        console.log(`[LLM Service] Final parsed records: MergedBalance(${mergedBalance.length}), Income(${jsonFormat.incomeStatement.length}), CashFlow(${jsonFormat.cashFlowStatement.length}).`)
-
-        return jsonFormat
+        return finalJson
     } catch (error: any) {
         console.error(`[LLM Service ERROR] Extraction failed:`, error.message)
         throw new Error(`LLM Extraction parsing failed: ${error.message}`)
     }
 }
+

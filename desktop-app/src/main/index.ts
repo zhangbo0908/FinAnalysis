@@ -128,10 +128,38 @@ app.whenReady().then(() => {
 
   // PDF to VLM extract tables
   ipcMain.handle('invoke:llm:extractTables', async (event, payload: { provider: string, imagesBase64: string[] }) => {
-    return await extractFinancialTables(payload, (msg) => {
+    // 图片压缩：财报图片不宜过度压缩（低分辨率反而让模型识别更慢）
+    // 保留适度上限 1280px，防止极端超大图片；当前图片约 1190px 通常无需压缩
+    const MAX_WIDTH = 1280
+    const { nativeImage } = await import('electron')
+
+    const compressedImages = payload.imagesBase64.map((dataUrl, i) => {
+      try {
+        const img = nativeImage.createFromDataURL(dataUrl)
+        const { width, height } = img.getSize()
+        const sizeKB = Math.round(dataUrl.length * 0.75 / 1024)
+        if (width <= MAX_WIDTH) {
+          console.log(`[图片] 图${i + 1}: ${width}×${height} | 大小约 ${sizeKB}KB → 无需压缩`)
+          return dataUrl
+        }
+        const newHeight = Math.round(height * (MAX_WIDTH / width))
+        const resized = img.resize({ width: MAX_WIDTH, height: newHeight, quality: 'good' })
+        const compressed = resized.toJPEG(85)
+        const base64 = compressed.toString('base64')
+        const newSizeKB = Math.round(base64.length * 0.75 / 1024)
+        console.log(`[图片] 图${i + 1}: ${width}×${height} (${sizeKB}KB) → ${MAX_WIDTH}×${newHeight} (${newSizeKB}KB) 已压缩`)
+        return `data:image/jpeg;base64,${base64}`
+      } catch (e) {
+        console.warn(`[图片] 图${i + 1} 尺寸读取失败，使用原图`, e)
+        return dataUrl
+      }
+    })
+
+    return await extractFinancialTables({ ...payload, imagesBase64: compressedImages }, (msg) => {
       event.sender.send('stream:extract:warning', msg)
     })
   })
+
 
   // Parse local Excel directly
   ipcMain.handle('invoke:excel:parseLocal', async (_, fileData: ArrayBuffer) => {
