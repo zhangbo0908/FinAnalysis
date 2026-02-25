@@ -110,7 +110,7 @@
 
 为确保整个研发生命周期中 TDD 价值最大化，将在该项目中实施：
 
-- **Git Hook**：使用 `Husky` + `lint-staged`。每次提交 (Commit) 都必须通过 `eslint` 校验并触发相关的被改动文件的 Vitest 单元测试。
+- [x] **Git Hook**：使用 `Husky` + `lint-staged`。每次提交 (Commit) 都必须通过 `eslint` 校验并触发相关的被改动文件的 Vitest 单元测试。
 - **CI 流水线 (GitHub Actions)**：
   - 代码推送到 `main` 或 `dev` 分支，执行云端全量单元和组件测试。
   - 通过 xvfb 无头模式执行 Electron Playwright 的 E2E 端到端冒烟测试。

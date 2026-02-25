@@ -47,8 +47,8 @@ const ANALYSIS_SYSTEM_PROMPT = `你是一位资深注册会计师和财务分析
 5. 报告末尾的日期必须使用用户提供的当前日期`
 
 export const ROLE_PROMPTS: Record<string, string> = {
-    'audit': ANALYSIS_SYSTEM_PROMPT,
-    'value_investing': `你是一位经验丰富的二级市场价值投资者（如巴菲特/芒格学派）。请根据以下三张财务报表数据，为该公司撰写一份深度投资价值分析报告。
+  audit: ANALYSIS_SYSTEM_PROMPT,
+  value_investing: `你是一位经验丰富的二级市场价值投资者（如巴菲特/芒格学派）。请根据以下三张财务报表数据，为该公司撰写一份深度投资价值分析报告。
 请极度严苛地审视其护城河、ROE 趋势、自由现金流以及长期成长的估值潜力。
 
 报告须涵盖以下维度：
@@ -70,7 +70,7 @@ export const ROLE_PROMPTS: Record<string, string> = {
 
 要求：所有计算必须展示公式和具体数字，使用 Markdown 格式，如果数据缺失无法计算需明确标注，报告末尾加上当前日期。`,
 
-    'management': `你是一位企业内部的高级经营分析师/CFO。请根据以下三张财务报表数据，为公司管理层撰写一份极具行动指导意义的内部经营分析报告。
+  management: `你是一位企业内部的高级经营分析师/CFO。请根据以下三张财务报表数据，为公司管理层撰写一份极具行动指导意义的内部经营分析报告。
 请重点聚焦资产周转效率、成本/费用刚性结构以及降本增效的直接发力点。
 
 报告须涵盖以下维度：
@@ -90,7 +90,7 @@ export const ROLE_PROMPTS: Record<string, string> = {
 
 要求：所有计算必须展示公式和具体数字，使用 Markdown 格式，如果数据缺失无法计算需明确标注，报告末尾加上当前日期。`,
 
-    'credit_risk': `你是一位极度厌恶风险的银行信贷审批官/风控专家。请根据以下财务报表数据，为该公司撰写一份冷酷无情的信贷风控违约排雷报告。
+  credit_risk: `你是一位极度厌恶风险的银行信贷审批官/风控专家。请根据以下财务报表数据，为该公司撰写一份冷酷无情的信贷风控违约排雷报告。
 请重点关注破产先兆指标、流动性卡脖子点与违约概率。
 
 报告须涵盖以下维度：
@@ -117,81 +117,88 @@ export const ROLE_PROMPTS: Record<string, string> = {
  * 将三表 JSON 数据序列化为大模型可读的文本
  */
 function serializeTablesForLLM(data: FinancialTablesJSON): string {
-    let text = ''
+  let text = ''
 
-    if (data.balanceSheet && data.balanceSheet.length > 0) {
-        text += '=== 资产负债表 ===\n'
-        const headers = Object.keys(data.balanceSheet[0])
-        text += headers.join(' | ') + '\n'
-        data.balanceSheet.forEach(row => {
-            text += headers.map(h => row[h] ?? '').join(' | ') + '\n'
-        })
-        text += '\n'
-    }
+  if (data.balanceSheet && data.balanceSheet.length > 0) {
+    text += '=== 资产负债表 ===\n'
+    const headers = Object.keys(data.balanceSheet[0])
+    text += headers.join(' | ') + '\n'
+    data.balanceSheet.forEach((row) => {
+      text += headers.map((h) => row[h] ?? '').join(' | ') + '\n'
+    })
+    text += '\n'
+  }
 
-    if (data.incomeStatement && data.incomeStatement.length > 0) {
-        text += '=== 利润表 ===\n'
-        const headers = Object.keys(data.incomeStatement[0])
-        text += headers.join(' | ') + '\n'
-        data.incomeStatement.forEach(row => {
-            text += headers.map(h => row[h] ?? '').join(' | ') + '\n'
-        })
-        text += '\n'
-    }
+  if (data.incomeStatement && data.incomeStatement.length > 0) {
+    text += '=== 利润表 ===\n'
+    const headers = Object.keys(data.incomeStatement[0])
+    text += headers.join(' | ') + '\n'
+    data.incomeStatement.forEach((row) => {
+      text += headers.map((h) => row[h] ?? '').join(' | ') + '\n'
+    })
+    text += '\n'
+  }
 
-    if (data.cashFlowStatement && data.cashFlowStatement.length > 0) {
-        text += '=== 现金流量表 ===\n'
-        const headers = Object.keys(data.cashFlowStatement[0])
-        text += headers.join(' | ') + '\n'
-        data.cashFlowStatement.forEach(row => {
-            text += headers.map(h => row[h] ?? '').join(' | ') + '\n'
-        })
-        text += '\n'
-    }
+  if (data.cashFlowStatement && data.cashFlowStatement.length > 0) {
+    text += '=== 现金流量表 ===\n'
+    const headers = Object.keys(data.cashFlowStatement[0])
+    text += headers.join(' | ') + '\n'
+    data.cashFlowStatement.forEach((row) => {
+      text += headers.map((h) => row[h] ?? '').join(' | ') + '\n'
+    })
+    text += '\n'
+  }
 
-    return text
+  return text
 }
 
 /**
  * 获取模型实例（复用 llmService 中的相同逻辑）
  */
-function getModelInstance(provider: string, apiKey: string, baseUrl?: string, modelName?: string): BaseChatModel {
-    console.log(`[Analysis Debug] getModelInstance - provider: ${provider}, modelName: ${modelName}, hasKey: ${!!apiKey}, baseUrl: ${baseUrl}`)
+function getModelInstance(
+  provider: string,
+  apiKey: string,
+  baseUrl?: string,
+  modelName?: string
+): BaseChatModel {
+  console.log(
+    `[Analysis Debug] getModelInstance - provider: ${provider}, modelName: ${modelName}, hasKey: ${!!apiKey}, baseUrl: ${baseUrl}`
+  )
 
-    switch (provider.toLowerCase()) {
-        case 'openai':
-            return new ChatOpenAI({
-                apiKey: apiKey,
-                openAIApiKey: apiKey, // Compatibility for some versions
-                configuration: baseUrl ? { baseURL: baseUrl } : undefined,
-                modelName: modelName || 'gpt-4o',
-                temperature: 0.3,
-            })
-        case 'anthropic':
-            return new ChatAnthropic({
-                anthropicApiKey: apiKey,
-                anthropicApiUrl: baseUrl,
-                modelName: modelName || 'claude-3-5-sonnet-20240620',
-                temperature: 0.3,
-            })
-        case 'gemini':
-            return new ChatGoogleGenerativeAI({
-                apiKey: apiKey,
-                baseUrl: baseUrl,
-                model: modelName || 'gemini-1.5-pro',
-                temperature: 0.3,
-            })
-        case 'custom':
-            return new ChatOpenAI({
-                apiKey: apiKey,
-                openAIApiKey: apiKey, // Compatibility
-                configuration: { baseURL: baseUrl },
-                modelName: modelName || 'proxy-model',
-                temperature: 0.3,
-            })
-        default:
-            throw new Error(`Unsupported AI provider: ${provider}`)
-    }
+  switch (provider.toLowerCase()) {
+    case 'openai':
+      return new ChatOpenAI({
+        apiKey: apiKey,
+        openAIApiKey: apiKey, // Compatibility for some versions
+        configuration: baseUrl ? { baseURL: baseUrl } : undefined,
+        modelName: modelName || 'gpt-4o',
+        temperature: 0.3
+      })
+    case 'anthropic':
+      return new ChatAnthropic({
+        anthropicApiKey: apiKey,
+        anthropicApiUrl: baseUrl,
+        modelName: modelName || 'claude-3-5-sonnet-20240620',
+        temperature: 0.3
+      })
+    case 'gemini':
+      return new ChatGoogleGenerativeAI({
+        apiKey: apiKey,
+        baseUrl: baseUrl,
+        model: modelName || 'gemini-1.5-pro',
+        temperature: 0.3
+      })
+    case 'custom':
+      return new ChatOpenAI({
+        apiKey: apiKey,
+        openAIApiKey: apiKey, // Compatibility
+        configuration: { baseURL: baseUrl },
+        modelName: modelName || 'proxy-model',
+        temperature: 0.3
+      })
+    default:
+      throw new Error(`Unsupported AI provider: ${provider}`)
+  }
 }
 
 /**
@@ -203,67 +210,67 @@ function getModelInstance(provider: string, apiKey: string, baseUrl?: string, mo
  * @param onError - 出错时的回调
  */
 export async function generateFinancialAnalysis(
-    provider: string,
-    data: FinancialTablesJSON,
-    customPrompt: string | undefined,
-    onChunk: (chunk: string) => void,
-    onDone: () => void,
-    onError: (error: string) => void
+  provider: string,
+  data: FinancialTablesJSON,
+  customPrompt: string | undefined,
+  onChunk: (chunk: string) => void,
+  onDone: () => void,
+  onError: (error: string) => void
 ): Promise<void> {
-    const credentials = getApiKey(provider)
-    if (!credentials) {
-        onError(`API Key for provider '${provider}' is not configured.`)
-        return
-    }
+  const credentials = getApiKey(provider)
+  if (!credentials) {
+    onError(`API Key for provider '${provider}' is not configured.`)
+    return
+  }
 
-    const model = getModelInstance(
-        provider,
-        credentials.apiKey,
-        credentials.baseUrl || undefined,
-        credentials.modelName || undefined
-    )
-    const modelId = credentials.modelName || (model as any).modelName || (model as any).model || provider
+  const model = getModelInstance(
+    provider,
+    credentials.apiKey,
+    credentials.baseUrl || undefined,
+    credentials.modelName || undefined
+  )
+  const modelId =
+    credentials.modelName || (model as any).modelName || (model as any).model || provider
 
-    const serializedData = serializeTablesForLLM(data)
-    console.log(`[${modelId}] Serialized ${serializedData.length} chars of financial data`)
+  const serializedData = serializeTablesForLLM(data)
+  console.log(`[${modelId}] Serialized ${serializedData.length} chars of financial data`)
 
-    const today = new Date()
-    const dateStr = `${today.getFullYear()}年${today.getMonth() + 1}月${today.getDate()}日`
+  const today = new Date()
+  const dateStr = `${today.getFullYear()}年${today.getMonth() + 1}月${today.getDate()}日`
 
-    const finalSystemPrompt = customPrompt && customPrompt.trim().length > 0
-        ? customPrompt
-        : ANALYSIS_SYSTEM_PROMPT
+  const finalSystemPrompt =
+    customPrompt && customPrompt.trim().length > 0 ? customPrompt : ANALYSIS_SYSTEM_PROMPT
 
-    const messages = [
-        new SystemMessage(finalSystemPrompt),
-        new HumanMessage(`今天的日期是：${dateStr}
+  const messages = [
+    new SystemMessage(finalSystemPrompt),
+    new HumanMessage(`今天的日期是：${dateStr}
 
 请分析以下财务报表数据：
 
 ${serializedData}`)
-    ]
+  ]
 
-    try {
-        console.log(`[${modelId}] Starting analysis with provider: ${provider}`)
-        // 使用 invoke 而非 stream，避免 Gemini 的流式解析 Bug
-        const response = await model.invoke(messages)
-        const fullContent = typeof response.content === 'string' ? response.content : ''
+  try {
+    console.log(`[${modelId}] Starting analysis with provider: ${provider}`)
+    // 使用 invoke 而非 stream，避免 Gemini 的流式解析 Bug
+    const response = await model.invoke(messages)
+    const fullContent = typeof response.content === 'string' ? response.content : ''
 
-        console.log(`[${modelId}] Got response of ${fullContent.length} chars, simulating stream...`)
+    console.log(`[${modelId}] Got response of ${fullContent.length} chars, simulating stream...`)
 
-        // 模拟打字机效果：按段落逐步推送
-        const paragraphs = fullContent.split('\n')
-        for (const paragraph of paragraphs) {
-            // 每一行作为一个 chunk 推送，附带换行
-            onChunk(paragraph + '\n')
-            // 短暂延迟模拟打字效果
-            await new Promise(resolve => setTimeout(resolve, 30))
-        }
-
-        console.log(`[${modelId}] Analysis completed`)
-        onDone()
-    } catch (error: any) {
-        console.error(`[${modelId} ERROR]`, error.message)
-        onError(`财务分析失败: ${error.message}`)
+    // 模拟打字机效果：按段落逐步推送
+    const paragraphs = fullContent.split('\n')
+    for (const paragraph of paragraphs) {
+      // 每一行作为一个 chunk 推送，附带换行
+      onChunk(paragraph + '\n')
+      // 短暂延迟模拟打字效果
+      await new Promise((resolve) => setTimeout(resolve, 30))
     }
+
+    console.log(`[${modelId}] Analysis completed`)
+    onDone()
+  } catch (error: any) {
+    console.error(`[${modelId} ERROR]`, error.message)
+    onError(`财务分析失败: ${error.message}`)
+  }
 }

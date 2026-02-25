@@ -9,28 +9,28 @@ import { Settings } from './pages/Settings'
 
 const router = createHashRouter([
   {
-    path: "/",
+    path: '/',
     element: <Layout />,
     children: [
       {
         index: true,
-        element: <ImportParse />,
+        element: <ImportParse />
       },
       {
-        path: "verification",
-        element: <DataVerification />,
+        path: 'verification',
+        element: <DataVerification />
       },
       {
-        path: "reporting",
-        element: <AgenticReporting />,
+        path: 'reporting',
+        element: <AgenticReporting />
       },
       {
-        path: "settings",
-        element: <Settings />,
+        path: 'settings',
+        element: <Settings />
       }
     ]
-  },
-]);
+  }
+])
 
 export function App() {
   return <RouterProvider router={router} />
